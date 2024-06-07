@@ -1,0 +1,20 @@
+{
+  "name": "retzark-engine",
+  "version": "1.0.0",
+  "description": "Retzark Engine for handling game-related transactions and communications with the Hive blockchain.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@hiveio/dhive": "^1.0.0",
+    "axios": "^1.7.2",
+    "crypto": "^1.0.1",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.10.9",
+    "winston": "^3.3.3"
+  },
+  "author": "Your Name",
+  "license": "MIT"
+}

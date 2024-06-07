@@ -1,0 +1,1451 @@
+[
+    {
+        "ID": 0,
+        "NAME": "AYESHKA",
+        "HP": 1,
+        "ATK": 2,
+        "SPD": 4,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 1,
+        "NAME": "BERT",
+        "HP": 2,
+        "ATK": 1,
+        "SPD": 3,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 2,
+        "NAME": "CHARLIE",
+        "HP": 4,
+        "ATK": 2,
+        "SPD": 3,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 3,
+        "NAME": "DAPHNE",
+        "HP": 1,
+        "ATK": 3,
+        "SPD": 2,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 4,
+        "NAME": "EVE",
+        "HP": 3,
+        "ATK": 1,
+        "SPD": 5,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 5,
+        "NAME": "FRIAD",
+        "HP": 2,
+        "ATK": 2,
+        "SPD": 6,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 6,
+        "NAME": "GUNNAR",
+        "HP": 2,
+        "ATK": 1,
+        "SPD": 3,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 7,
+        "NAME": "HALBERT",
+        "HP": 3,
+        "ATK": 1,
+        "SPD": 4,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 8,
+        "NAME": "KESHI",
+        "HP": 3,
+        "ATK": 3,
+        "SPD": 5,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 9,
+        "NAME": "LAX",
+        "HP": 4,
+        "ATK": 2,
+        "SPD": 3,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 10,
+        "NAME": "LEZARD",
+        "HP": 2,
+        "ATK": 1,
+        "SPD": 4,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 11,
+        "NAME": "LO-KHI",
+        "HP": 3,
+        "ATK": 2,
+        "SPD": 3,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 12,
+        "NAME": "MAKRO",
+        "HP": 4,
+        "ATK": 2,
+        "SPD": 3,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 13,
+        "NAME": "MANDY",
+        "HP": 2,
+        "ATK": 3,
+        "SPD": 4,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 14,
+        "NAME": "MIRAGE",
+        "HP": 3,
+        "ATK": 2,
+        "SPD": 6,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 15,
+        "NAME": "NO.505",
+        "HP": 4,
+        "ATK": 3,
+        "SPD": 2,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 16,
+        "NAME": "NO.55",
+        "HP": 3,
+        "ATK": 2,
+        "SPD": 3,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 17,
+        "NAME": "QUEZA",
+        "HP": 1,
+        "ATK": 2,
+        "SPD": 3,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 18,
+        "NAME": "RIZZAE",
+        "HP": 2,
+        "ATK": 3,
+        "SPD": 5,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 19,
+        "NAME": "SHERYL",
+        "HP": 2,
+        "ATK": 2,
+        "SPD": 8,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 20,
+        "NAME": "STEVEN",
+        "HP": 3,
+        "ATK": 1,
+        "SPD": 4,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 21,
+        "NAME": "SUZETTE",
+        "HP": 1,
+        "ATK": 2,
+        "SPD": 6,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 22,
+        "NAME": "SVEN",
+        "HP": 4,
+        "ATK": 3,
+        "SPD": 2,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 23,
+        "NAME": "SYLVIA",
+        "HP": 3,
+        "ATK": 1,
+        "SPD": 5,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 24,
+        "NAME": "TIMOTHY",
+        "HP": 3,
+        "ATK": 2,
+        "SPD": 4,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 25,
+        "NAME": "TRAE",
+        "HP": 2,
+        "ATK": 2,
+        "SPD": 1,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 26,
+        "NAME": "YANDY",
+        "HP": 2,
+        "ATK": 1,
+        "SPD": 6,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 27,
+        "NAME": "YENG",
+        "HP": 2,
+        "ATK": 3,
+        "SPD": 5,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 28,
+        "NAME": "ZEN",
+        "HP": 2,
+        "ATK": 1,
+        "SPD": 6,
+        "EGY": 1,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 29,
+        "NAME": "ALANNA",
+        "HP": 2,
+        "ATK": 2,
+        "SPD": 5,
+        "EGY": 2,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 30,
+        "NAME": "DUNCAN",
+        "HP": 3,
+        "ATK": 4,
+        "SPD": 4,
+        "EGY": 2,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 31,
+        "NAME": "ENZO",
+        "HP": 4,
+        "ATK": 4,
+        "SPD": 3,
+        "EGY": 2,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 32,
+        "NAME": "HARNETH",
+        "HP": 3,
+        "ATK": 3,
+        "SPD": 6,
+        "EGY": 2,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 33,
+        "NAME": "HERO",
+        "HP": 4,
+        "ATK": 4,
+        "SPD": 2,
+        "EGY": 2,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 34,
+        "NAME": "HREIDMAR",
+        "HP": 4,
+        "ATK": 3,
+        "SPD": 3,
+        "EGY": 2,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 35,
+        "NAME": "KITTY",
+        "HP": 2,
+        "ATK": 2,
+        "SPD": 6,
+        "EGY": 2,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 36,
+        "NAME": "MIKE",
+        "HP": 3,
+        "ATK": 3,
+        "SPD": 5,
+        "EGY": 2,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 37,
+        "NAME": "NO.46",
+        "HP": 1,
+        "ATK": 3,
+        "SPD": 6,
+        "EGY": 2,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 38,
+        "NAME": "PAULA",
+        "HP": 1,
+        "ATK": 1,
+        "SPD": 7,
+        "EGY": 2,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 39,
+        "NAME": "SARO",
+        "HP": 2,
+        "ATK": 2,
+        "SPD": 7,
+        "EGY": 2,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 40,
+        "NAME": "SHILAR",
+        "HP": 3,
+        "ATK": 3,
+        "SPD": 4,
+        "EGY": 2,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 41,
+        "NAME": "SKULLY",
+        "HP": 3,
+        "ATK": 2,
+        "SPD": 5,
+        "EGY": 2,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 42,
+        "NAME": "VACE",
+        "HP": 1,
+        "ATK": 3,
+        "SPD": 6,
+        "EGY": 2,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 43,
+        "NAME": "VICTORIA",
+        "HP": 1,
+        "ATK": 2,
+        "SPD": 2,
+        "EGY": 2,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 44,
+        "NAME": "ACE",
+        "HP": 3,
+        "ATK": 2,
+        "SPD": 7,
+        "EGY": 3,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 45,
+        "NAME": "BIGBY",
+        "HP": 3,
+        "ATK": 4,
+        "SPD": 3,
+        "EGY": 3,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 46,
+        "NAME": "CLARA",
+        "HP": 5,
+        "ATK": 3,
+        "SPD": 6,
+        "EGY": 3,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 47,
+        "NAME": "KAISHIN",
+        "HP": 2,
+        "ATK": 4,
+        "SPD": 7,
+        "EGY": 3,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 48,
+        "NAME": "NO.32",
+        "HP": 1,
+        "ATK": 4,
+        "SPD": 4,
+        "EGY": 3,
+        "RARITY": "COMMON"
+    },
+    {
+        "ID": 49,
+        "NAME": "LIZ",
+        "HP": 5,
+        "ATK": 4,
+        "SPD": 5,
+        "EGY": 3,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 50,
+        "NAME": "NO.82",
+        "HP": 6,
+        "ATK": 2,
+        "SPD": 1,
+        "EGY": 3,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 51,
+        "NAME": "SERENA",
+        "HP": 3,
+        "ATK": 3,
+        "SPD": 4,
+        "EGY": 3,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 52,
+        "NAME": "SHAMALAK",
+        "HP": 4,
+        "ATK": 3,
+        "SPD": 7,
+        "EGY": 3,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 53,
+        "NAME": "SHINJI",
+        "HP": 4,
+        "ATK": 4,
+        "SPD": 3,
+        "EGY": 3,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 54,
+        "NAME": "VICEROY",
+        "HP": 6,
+        "ATK": 4,
+        "SPD": 5,
+        "EGY": 3,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 55,
+        "NAME": "ASPHALT",
+        "HP": 5,
+        "ATK": 4,
+        "SPD": 2,
+        "EGY": 4,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 56,
+        "NAME": "BREW",
+        "HP": 6,
+        "ATK": 2,
+        "SPD": 3,
+        "EGY": 4,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 57,
+        "NAME": "CLYDE",
+        "HP": 4,
+        "ATK": 4,
+        "SPD": 6,
+        "EGY": 4,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 58,
+        "NAME": "CODY",
+        "HP": 5,
+        "ATK": 4,
+        "SPD": 8,
+        "EGY": 4,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 59,
+        "NAME": "FORE",
+        "HP": 6,
+        "ATK": 4,
+        "SPD": 5,
+        "EGY": 4,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 60,
+        "NAME": "HA-LE",
+        "HP": 5,
+        "ATK": 5,
+        "SPD": 6,
+        "EGY": 4,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 61,
+        "NAME": "ICHINO",
+        "HP": 4,
+        "ATK": 5,
+        "SPD": 6,
+        "EGY": 4,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 62,
+        "NAME": "JACK",
+        "HP": 4,
+        "ATK": 4,
+        "SPD": 6,
+        "EGY": 4,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 63,
+        "NAME": "JAKA",
+        "HP": 4,
+        "ATK": 3,
+        "SPD": 3,
+        "EGY": 4,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 64,
+        "NAME": "MARSHAL",
+        "HP": 6,
+        "ATK": 4,
+        "SPD": 2,
+        "EGY": 4,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 65,
+        "NAME": "NO.101",
+        "HP": 5,
+        "ATK": 4,
+        "SPD": 8,
+        "EGY": 4,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 66,
+        "NAME": "ONERUU",
+        "HP": 4,
+        "ATK": 4,
+        "SPD": 3,
+        "EGY": 4,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 67,
+        "NAME": "RAZ",
+        "HP": 5,
+        "ATK": 4,
+        "SPD": 4,
+        "EGY": 4,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 68,
+        "NAME": "RIFT",
+        "HP": 6,
+        "ATK": 3,
+        "SPD": 7,
+        "EGY": 4,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 69,
+        "NAME": "SETON",
+        "HP": 7,
+        "ATK": 4,
+        "SPD": 3,
+        "EGY": 4,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 70,
+        "NAME": "SPARK",
+        "HP": 4,
+        "ATK": 7,
+        "SPD": 3,
+        "EGY": 4,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 71,
+        "NAME": "TRISHA",
+        "HP": 6,
+        "ATK": 4,
+        "SPD": 5,
+        "EGY": 4,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 72,
+        "NAME": "X-003",
+        "HP": 4,
+        "ATK": 6,
+        "SPD": 6,
+        "EGY": 4,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 73,
+        "NAME": " MAEVE",
+        "HP": 6,
+        "ATK": 4,
+        "SPD": 6,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 74,
+        "NAME": "ANGELA",
+        "HP": 2,
+        "ATK": 6,
+        "SPD": 6,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 75,
+        "NAME": "ARGELUS",
+        "HP": 3,
+        "ATK": 4,
+        "SPD": 7,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 76,
+        "NAME": "ARGON",
+        "HP": 4,
+        "ATK": 4,
+        "SPD": 2,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 77,
+        "NAME": "ASTEL",
+        "HP": 6,
+        "ATK": 5,
+        "SPD": 6,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 78,
+        "NAME": "BRADIK",
+        "HP": 6,
+        "ATK": 6,
+        "SPD": 1,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 79,
+        "NAME": "CALISTO",
+        "HP": 5,
+        "ATK": 4,
+        "SPD": 1,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 80,
+        "NAME": "CASPIAN",
+        "HP": 6,
+        "ATK": 5,
+        "SPD": 7,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 81,
+        "NAME": "CID",
+        "HP": 4,
+        "ATK": 2,
+        "SPD": 5,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 82,
+        "NAME": "DESPAIR",
+        "HP": 5,
+        "ATK": 6,
+        "SPD": 5,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 83,
+        "NAME": "EMILY",
+        "HP": 2,
+        "ATK": 3,
+        "SPD": 6,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 84,
+        "NAME": "GIZZARD",
+        "HP": 7,
+        "ATK": 5,
+        "SPD": 6,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 85,
+        "NAME": "ISHIDA",
+        "HP": 3,
+        "ATK": 3,
+        "SPD": 6,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 86,
+        "NAME": "JAMYR",
+        "HP": 3,
+        "ATK": 4,
+        "SPD": 4,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 87,
+        "NAME": "JAYVE",
+        "HP": 4,
+        "ATK": 5,
+        "SPD": 8,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 88,
+        "NAME": "JAZKIER",
+        "HP": 8,
+        "ATK": 5,
+        "SPD": 3,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 89,
+        "NAME": "M.O.I.",
+        "HP": 6,
+        "ATK": 6,
+        "SPD": 2,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 90,
+        "NAME": "MANE",
+        "HP": 4,
+        "ATK": 4,
+        "SPD": 2,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 91,
+        "NAME": "MARIFORD",
+        "HP": 7,
+        "ATK": 4,
+        "SPD": 5,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 92,
+        "NAME": "MR.WARD",
+        "HP": 5,
+        "ATK": 4,
+        "SPD": 4,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 93,
+        "NAME": "NARUIN",
+        "HP": 5,
+        "ATK": 4,
+        "SPD": 3,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 94,
+        "NAME": "NORED",
+        "HP": 2,
+        "ATK": 3,
+        "SPD": 6,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 95,
+        "NAME": "NUKI",
+        "HP": 2,
+        "ATK": 5,
+        "SPD": 8,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 96,
+        "NAME": "PATCH",
+        "HP": 4,
+        "ATK": 3,
+        "SPD": 8,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 97,
+        "NAME": "SPIKE",
+        "HP": 7,
+        "ATK": 5,
+        "SPD": 4,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 98,
+        "NAME": "TIFF",
+        "HP": 5,
+        "ATK": 5,
+        "SPD": 2,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 99,
+        "NAME": "TRANDU",
+        "HP": 7,
+        "ATK": 6,
+        "SPD": 4,
+        "EGY": 5,
+        "RARITY": "RARE"
+    },
+    {
+        "ID": 100,
+        "NAME": "ROSETTA",
+        "HP": 4,
+        "ATK": 4,
+        "SPD": 6,
+        "EGY": 4,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 101,
+        "NAME": "3RD RAZOR",
+        "HP": 6,
+        "ATK": 4,
+        "SPD": 6,
+        "EGY": 6,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 102,
+        "NAME": "AZIARAN",
+        "HP": 7,
+        "ATK": 5,
+        "SPD": 4,
+        "EGY": 6,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 103,
+        "NAME": "BAHRAM",
+        "HP": 6,
+        "ATK": 5,
+        "SPD": 6,
+        "EGY": 6,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 104,
+        "NAME": "BEETLE",
+        "HP": 4,
+        "ATK": 5,
+        "SPD": 1,
+        "EGY": 6,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 105,
+        "NAME": "HERMES",
+        "HP": 7,
+        "ATK": 9,
+        "SPD": 2,
+        "EGY": 6,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 106,
+        "NAME": "HOZEA",
+        "HP": 8,
+        "ATK": 6,
+        "SPD": 4,
+        "EGY": 6,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 107,
+        "NAME": "KRIZATOR",
+        "HP": 5,
+        "ATK": 5,
+        "SPD": 7,
+        "EGY": 6,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 108,
+        "NAME": "LIZARAK",
+        "HP": 5,
+        "ATK": 5,
+        "SPD": 8,
+        "EGY": 6,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 109,
+        "NAME": "MALGUS",
+        "HP": 7,
+        "ATK": 6,
+        "SPD": 4,
+        "EGY": 6,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 110,
+        "NAME": "MR.YONKA",
+        "HP": 5,
+        "ATK": 7,
+        "SPD": 7,
+        "EGY": 6,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 111,
+        "NAME": "NIX",
+        "HP": 4,
+        "ATK": 6,
+        "SPD": 2,
+        "EGY": 6,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 112,
+        "NAME": "NO.4",
+        "HP": 4,
+        "ATK": 8,
+        "SPD": 5,
+        "EGY": 6,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 113,
+        "NAME": "ODIN",
+        "HP": 9,
+        "ATK": 4,
+        "SPD": 5,
+        "EGY": 6,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 114,
+        "NAME": "SAHA",
+        "HP": 3,
+        "ATK": 3,
+        "SPD": 7,
+        "EGY": 6,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 115,
+        "NAME": "SEEDARAK",
+        "HP": 4,
+        "ATK": 5,
+        "SPD": 6,
+        "EGY": 6,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 116,
+        "NAME": "WEI",
+        "HP": 6,
+        "ATK": 5,
+        "SPD": 6,
+        "EGY": 6,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 117,
+        "NAME": "YANZ",
+        "HP": 3,
+        "ATK": 6,
+        "SPD": 5,
+        "EGY": 6,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 118,
+        "NAME": "ZAI",
+        "HP": 5,
+        "ATK": 7,
+        "SPD": 5,
+        "EGY": 6,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 119,
+        "NAME": "AZIR",
+        "HP": 5,
+        "ATK": 8,
+        "SPD": 2,
+        "EGY": 7,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 120,
+        "NAME": "BILLY",
+        "HP": 3,
+        "ATK": 6,
+        "SPD": 4,
+        "EGY": 7,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 121,
+        "NAME": "BRADLEY",
+        "HP": 6,
+        "ATK": 6,
+        "SPD": 4,
+        "EGY": 7,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 122,
+        "NAME": "HATTI",
+        "HP": 6,
+        "ATK": 8,
+        "SPD": 5,
+        "EGY": 7,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 123,
+        "NAME": "KAWASHI",
+        "HP": 6,
+        "ATK": 8,
+        "SPD": 5,
+        "EGY": 7,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 124,
+        "NAME": "MARV",
+        "HP": 5,
+        "ATK": 9,
+        "SPD": 2,
+        "EGY": 7,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 125,
+        "NAME": "MC AVOY",
+        "HP": 6,
+        "ATK": 5,
+        "SPD": 2,
+        "EGY": 7,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 126,
+        "NAME": "NIVLEF",
+        "HP": 6,
+        "ATK": 4,
+        "SPD": 8,
+        "EGY": 7,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 127,
+        "NAME": "NO.5",
+        "HP": 6,
+        "ATK": 8,
+        "SPD": 5,
+        "EGY": 7,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 128,
+        "NAME": "ORION",
+        "HP": 5,
+        "ATK": 6,
+        "SPD": 6,
+        "EGY": 7,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 129,
+        "NAME": "RED",
+        "HP": 5,
+        "ATK": 7,
+        "SPD": 4,
+        "EGY": 7,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 130,
+        "NAME": "ROSARVIO",
+        "HP": 9,
+        "ATK": 5,
+        "SPD": 1,
+        "EGY": 7,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 131,
+        "NAME": "TORZ",
+        "HP": 5,
+        "ATK": 6,
+        "SPD": 3,
+        "EGY": 7,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 132,
+        "NAME": "WANNE",
+        "HP": 6,
+        "ATK": 4,
+        "SPD": 5,
+        "EGY": 7,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 133,
+        "NAME": "ZERATRAX",
+        "HP": 5,
+        "ATK": 6,
+        "SPD": 8,
+        "EGY": 7,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 134,
+        "NAME": "DYLAN",
+        "HP": 4,
+        "ATK": 9,
+        "SPD": 3,
+        "EGY": 8,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 135,
+        "NAME": "E-MAW",
+        "HP": 5,
+        "ATK": 7,
+        "SPD": 7,
+        "EGY": 8,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 136,
+        "NAME": "JULIA",
+        "HP": 8,
+        "ATK": 5,
+        "SPD": 6,
+        "EGY": 8,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 137,
+        "NAME": "LUKE",
+        "HP": 6,
+        "ATK": 6,
+        "SPD": 5,
+        "EGY": 8,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 138,
+        "NAME": "MISCHIEF",
+        "HP": 6,
+        "ATK": 7,
+        "SPD": 4,
+        "EGY": 8,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 139,
+        "NAME": "OGASHI",
+        "HP": 5,
+        "ATK": 8,
+        "SPD": 7,
+        "EGY": 8,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 140,
+        "NAME": "SIEGFREID",
+        "HP": 8,
+        "ATK": 5,
+        "SPD": 4,
+        "EGY": 8,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 141,
+        "NAME": "SNIVEK",
+        "HP": 6,
+        "ATK": 5,
+        "SPD": 4,
+        "EGY": 8,
+        "RARITY": "EPIC"
+    },
+    {
+        "ID": 142,
+        "NAME": "BRUNHILDE",
+        "HP": 8,
+        "ATK": 5,
+        "SPD": 6,
+        "EGY": 6,
+        "RARITY": "LEGENDARY"
+    },
+    {
+        "ID": 143,
+        "NAME": "YUE",
+        "HP": 10,
+        "ATK": 7,
+        "SPD": 8,
+        "EGY": 7,
+        "RARITY": "LEGENDARY"
+    },
+    {
+        "ID": 144,
+        "NAME": " RIYUWE",
+        "HP": 6,
+        "ATK": 6,
+        "SPD": 10,
+        "EGY": 8,
+        "RARITY": "LEGENDARY"
+    },
+    {
+        "ID": 145,
+        "NAME": "AHREN",
+        "HP": 7,
+        "ATK": 9,
+        "SPD": 3,
+        "EGY": 8,
+        "RARITY": "LEGENDARY"
+    },
+    {
+        "ID": 146,
+        "NAME": "AJAX",
+        "HP": 9,
+        "ATK": 7,
+        "SPD": 6,
+        "EGY": 8,
+        "RARITY": "LEGENDARY"
+    },
+    {
+        "ID": 147,
+        "NAME": "AZRAEL",
+        "HP": 4,
+        "ATK": 7,
+        "SPD": 8,
+        "EGY": 8,
+        "RARITY": "LEGENDARY"
+    },
+    {
+        "ID": 148,
+        "NAME": "DORAIZUN",
+        "HP": 8,
+        "ATK": 10,
+        "SPD": 6,
+        "EGY": 8,
+        "RARITY": "LEGENDARY"
+    },
+    {
+        "ID": 149,
+        "NAME": "ERLAND",
+        "HP": 7,
+        "ATK": 9,
+        "SPD": 3,
+        "EGY": 8,
+        "RARITY": "LEGENDARY"
+    },
+    {
+        "ID": 150,
+        "NAME": "RANCID",
+        "HP": 3,
+        "ATK": 6,
+        "SPD": 10,
+        "EGY": 8,
+        "RARITY": "LEGENDARY"
+    },
+    {
+        "ID": 151,
+        "NAME": "BRIX",
+        "HP": 7,
+        "ATK": 10,
+        "SPD": 4,
+        "EGY": 9,
+        "RARITY": "LEGENDARY"
+    },
+    {
+        "ID": 152,
+        "NAME": "COSMO",
+        "HP": 6,
+        "ATK": 6,
+        "SPD": 4,
+        "EGY": 9,
+        "RARITY": "LEGENDARY"
+    },
+    {
+        "ID": 153,
+        "NAME": "CRBN-SPDR",
+        "HP": 6,
+        "ATK": 10,
+        "SPD": 9,
+        "EGY": 9,
+        "RARITY": "LEGENDARY"
+    },
+    {
+        "ID": 154,
+        "NAME": "ESKA",
+        "HP": 9,
+        "ATK": 10,
+        "SPD": 8,
+        "EGY": 9,
+        "RARITY": "LEGENDARY"
+    },
+    {
+        "ID": 155,
+        "NAME": "JAKERZ",
+        "HP": 8,
+        "ATK": 10,
+        "SPD": 4,
+        "EGY": 9,
+        "RARITY": "LEGENDARY"
+    },
+    {
+        "ID": 156,
+        "NAME": "VIVASVAT",
+        "HP": 9,
+        "ATK": 9,
+        "SPD": 3,
+        "EGY": 9,
+        "RARITY": "LEGENDARY"
+    },
+    {
+        "ID": 157,
+        "NAME": "YAX",
+        "HP": 10,
+        "ATK": 4,
+        "SPD": 1,
+        "EGY": 9,
+        "RARITY": "LEGENDARY"
+    },
+    {
+        "ID": 158,
+        "NAME": "ZERO",
+        "HP": 8,
+        "ATK": 5,
+        "SPD": 3,
+        "EGY": 9,
+        "RARITY": "LEGENDARY"
+    },
+    {
+        "ID": 159,
+        "NAME": "NO.2",
+        "HP": 9,
+        "ATK": 9,
+        "SPD": 8,
+        "EGY": 10,
+        "RARITY": "LEGENDARY"
+    },
+    {
+        "ID": 999,
+        "NAME": "NULL",
+        "HP": 0,
+        "ATK": 0,
+        "SPD": 0,
+        "EGY": 0,
+        "RARITY": "NULL"
+    }
+]
