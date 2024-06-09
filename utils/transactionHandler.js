@@ -7,7 +7,6 @@ const Match = require("../models/Match");
 const handleJoinRequest = async (data) => {
     console.log('Join request received:', data);
     let player = data.required_posting_auths[0];
-    waitingPlayers.add(data.required_posting_auths[0]);
     let playerData = await Player.findOne({ username: player });
     console.log(`Player data: ${playerData}`);
     if (!playerData) {
@@ -17,6 +16,12 @@ const handleJoinRequest = async (data) => {
         await playerData.save();
     }
     console.log("Players name:", data.required_posting_auths[0]);
+    if (playerData.status === 'In waiting room' || playerData.status === 'In a match') {
+        console.log(`Player ${player} is already in the waiting room or in a match.`);
+        return;
+    } else {
+        waitingPlayers.add(data.required_posting_auths[0]);
+    }
     console.log('Waiting players:', Array.from(waitingPlayers));
 };
 

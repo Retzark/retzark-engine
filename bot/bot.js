@@ -78,7 +78,12 @@ const playMatch = async (matchId, botName) => {
         }
         await sleep(10000); // Wait for 10 seconds before checking the round status again
     }
-    await joinWaitingRoom(botName); // Join the waiting room again after the match is completed
+    const playerData = await fetchUserMatch();
+    if (playerData && (playerData.status === 'In waiting room' || playerData.status === 'In a match')) {
+        console.log(`Player ${botName} is in the waiting room or in a match.`);
+    } else {
+        await joinWaitingRoom(botName, PrivateKey.from(process.env[`POSTING_KEY_${botName.toUpperCase()}`])); // Join the waiting room again after the match is completed
+    }
 };
 
 // Fetch the current match details
