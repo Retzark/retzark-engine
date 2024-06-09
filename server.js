@@ -11,7 +11,8 @@ const wageringRoutes = require('./routes/wageringRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const logRoutes = require('./routes/logRoutes');
 const { runProceduralTest } = require('./tests/proceduralTest');
-
+const { startBot } = require('./bot/bot');
+const { startBot2 } = require('./bot/bot2');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3000;
@@ -28,7 +29,9 @@ app.use('/admin', adminRoutes);
 app.use('/log', logRoutes);
 
 connectDB();
-runProceduralTest();
+startBot();
+startBot2();
+
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
     startStreamingFrom(process.env.START_BLOCK);
