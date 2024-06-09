@@ -3,28 +3,24 @@ const crypto = require('crypto');
 const { Client, PrivateKey } = require('@hiveio/dhive');
 const mongoose = require('mongoose');
 require('dotenv').config();
-
-const PLAYER_USERNAME = process.env.BOT_ACCOUNT;
-const POSTING_KEY = PrivateKey.from(process.env.POSTING_KEY);
 const HIVE_NODE = process.env.HIVE_NODE || 'https://api.openhive.network';
 const client = new Client(HIVE_NODE, { timeout: 8000, failoverThreshold: 10 });
-
 const BASE_URL = 'http://localhost:3000';
 
 const Card = require('../models/Card'); // Assuming the card model is in the models directory
 
 // Join the waiting room
-const joinWaitingRoom = async () => {
+const joinWaitingRoom = async (botName) => {
     const ops = [{
         required_auths: [],
-        required_posting_auths: [PLAYER_USERNAME],
+        required_posting_auths: [botName],
         id: 'RZ_JOIN_WAITING_ROOM',
-        json: JSON.stringify({ username: PLAYER_USERNAME })
+        json: JSON.stringify({ username: botName })
     }];
 
     try {
-        const result = await client.broadcast.json(ops[0], POSTING_KEY);
-        console.log(`Player ${PLAYER_USERNAME} joined the waiting room.`);
+        const result = await client.broadcast.json(ops[0], PrivateKey.from(process.env[`POSTING_KEY_${botName.toUpperCase()}`]));
+        console.log(`Player ${botName} joined the waiting room.`);
         console.log('Transaction posted:', result);
     } catch (error) {
         console.error('Failed to post transaction:', error);
@@ -32,19 +28,19 @@ const joinWaitingRoom = async () => {
 };
 
 // Main function to start the bot
-const startBot = async () => {
+const startBot = async (botName) => {
     await sleep(10000); // Wait for 10 seconds before starting
-    await joinWaitingRoom();
-    await monitorMatchmaking();
+    await joinWaitingRoom(botName);
+    await monitorMatchmaking(botName);
 };
 
 // Continuously monitor for matchmaking
-const monitorMatchmaking = async () => {
+const monitorMatchmaking = async (botName) => {
     while (true) {
-        const matchId = await fetchUserMatch();
+        const matchId = await fetchUserMatch(botName);
         if (matchId) {
             console.log(`Match found: ${matchId}`);
-            await playMatch(matchId);
+            await playMatch(matchId, botName);
         } else {
             console.log('Waiting for a match...');
             await sleep(10000); // Wait for 10 seconds before checking again
@@ -53,8 +49,8 @@ const monitorMatchmaking = async () => {
 };
 
 // Fetch the current match ID for the player
-const fetchUserMatch = async () => {
-    const response = await axios.get(`${BASE_URL}/player/${PLAYER_USERNAME}`);
+const fetchUserMatch = async (botName) => {
+    const response = await axios.get(`${BASE_URL}/player/${botName}`);
     const playerData = response.data;
     if (playerData && playerData.matchId) {
         return playerData.matchId;
@@ -66,7 +62,7 @@ const fetchUserMatch = async () => {
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Play through the match rounds
-const playMatch = async (matchId) => {
+const playMatch = async (matchId, botName) => {
     let round = 1;
     while (true) {
         const matchDetails = await fetchMatchDetails(matchId);
@@ -77,12 +73,12 @@ const playMatch = async (matchId) => {
         if (matchDetails.round <= round) {
             const previousRound = matchDetails.round - 1;
             const survivingCards = getSurvivingCards(matchDetails, previousRound);
-            await playRound(matchId, matchDetails.round, survivingCards);
+            await playRound(matchId, matchDetails.round, survivingCards, botName);
             round++;
         }
         await sleep(10000); // Wait for 10 seconds before checking the round status again
     }
-    await joinWaitingRoom(); // Join the waiting room again after the match is completed
+    await joinWaitingRoom(botName); // Join the waiting room again after the match is completed
 };
 
 // Fetch the current match details
@@ -98,12 +94,12 @@ const getSurvivingCards = (matchDetails, round) => {
 };
 
 // Handle the logic for a single round
-const playRound = async (matchId, round, survivingCards) => {
-    const cardIds = await selectRandomCards(survivingCards);
+const playRound = async (matchId, round, survivingCards, botName) => {
+    const cardIds = await selectRandomCards(survivingCards, botName);
     console.log(`Playing round ${round} with cards:`, cardIds);
     const cardHash = crypto.createHash('sha256').update(JSON.stringify(cardIds)).digest('hex');
     console.log('Card hash:', cardHash);
-    await submitCardSelection(matchId, cardHash);
+    await submitCardSelection(matchId, cardHash, botName);
     while (true) {
         await sleep(10000); // Wait for 10 seconds before revealing the cards
         const matchDetails = await fetchMatchDetails(matchId);
@@ -115,18 +111,18 @@ const playRound = async (matchId, round, survivingCards) => {
             console.log('Revealing cards...');
             console.log('Card Hashes:', matchDetails.cardHashes);
             console.log("cardHash:", cardHash);
-            await revealCards(matchId, cardIds);
+            await revealCards(matchId, cardIds, botName);
             break;
         }
     }
 };
 
 // Randomly select cards ensuring the total energy cost is within the limit
-const selectRandomCards = async (survivingCards) => {
+const selectRandomCards = async (survivingCards, botName) => {
     console.log('Selecting cards from:', survivingCards);
 
-    if (survivingCards[0] && survivingCards[0][PLAYER_USERNAME]) {
-        survivingCards = survivingCards[0][PLAYER_USERNAME];
+    if (survivingCards[0] && survivingCards[0][botName]) {
+        survivingCards = survivingCards[0][botName];
     } else{
         //survivingCards: [
         //   { id: 999, hp: 0, atk: 0, spd: 0 },
@@ -179,16 +175,16 @@ const selectRandomCards = async (survivingCards) => {
 };
 
 // Submit the hash of the selected cards for the current round via a custom JSON transaction
-const submitCardSelection = async (matchId, cardHash) => {
+const submitCardSelection = async (matchId, cardHash, botName) => {
     const ops = [{
         required_auths: [],
-        required_posting_auths: [PLAYER_USERNAME],
+        required_posting_auths: [botName],
         id: 'RZ_CARD_SELECTION',
         json: JSON.stringify({ hash: cardHash })
     }];
 
     try {
-        const result = await client.broadcast.json(ops[0], POSTING_KEY);
+        const result = await client.broadcast.json(ops[0], PrivateKey.from(process.env[`POSTING_KEY_${botName.toUpperCase()}`]));
         console.log(`Card selection hash submitted for match ${matchId}.`);
         console.log('Transaction posted:', result);
     } catch (error) {
@@ -197,11 +193,11 @@ const submitCardSelection = async (matchId, cardHash) => {
 };
 
 // Reveal the selected cards once both players have submitted their hashes
-const revealCards = async (matchId, cardIds) => {
+const revealCards = async (matchId, cardIds, botName) => {
     // Extract only the IDs from the cards
     console.log('Revealing cards:', cardIds);
     const response = await axios.post(`${BASE_URL}/match/reveal/${matchId}`, {
-        player: PLAYER_USERNAME,
+        player: botName,
         cards: cardIds
     });
 

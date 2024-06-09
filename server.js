@@ -12,10 +12,11 @@ const adminRoutes = require('./routes/adminRoutes');
 const logRoutes = require('./routes/logRoutes');
 const { runProceduralTest } = require('./tests/proceduralTest');
 const { startBot } = require('./bot/bot');
-const { startBot2 } = require('./bot/bot2');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3000;
+const BOT_ACCOUNT_1 = process.env.BOT_ACCOUNT_1;
+const BOT_ACCOUNT_2 = process.env.BOT_ACCOUNT_2;
 
 app.use(express.json());
 app.use('/', indexRoutes);
@@ -29,8 +30,9 @@ app.use('/admin', adminRoutes);
 app.use('/log', logRoutes);
 
 connectDB();
-startBot();
-startBot2();
+startBot(BOT_ACCOUNT_1);
+startBot(BOT_ACCOUNT_2);
+
 
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
