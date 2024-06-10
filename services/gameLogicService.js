@@ -5,9 +5,10 @@
 const Match = require('../models/Match');
 const Card = require('../models/Card');
 const Player = require('../models/Player');
+const { activeMatches } = require("../services/matchmakingService");
 const { determineCardOrder, simulateRound, calculateDamage, applyDamage, updateGameState, checkWinConditions } = require('./gameLogicHelpers');
 
-const calculateMatchOutcome = async (matchId, players, blockHash) => {
+const calculateMatchOutcome = async (matchId) => {
     try {
         // Get match details from database
         const match = await Match.findOne({ matchId });
@@ -83,15 +84,19 @@ const calculateMatchOutcome = async (matchId, players, blockHash) => {
         }
 
         // Simulate the round
-        await simulateRound(cardDetails, match);
+        let winner = await simulateRound(cardDetails, match);
         console.log("Round1:", match.round);
+        if (!winner && match.round === 7) {
+            winner = await checkWinConditions(matchId, match.round);
+        }
         // Check win conditions
-        const winner = await checkWinConditions(matchId, match.round);
         if (winner) {
             console.log("Winner: ", winner.winner);
             match.winner = winner.winner;
             match.status = 'completed';
-
+            console.log("Players: ", );
+            delete activeMatches[winner.loser];
+            delete activeMatches[winner.winner];
             let winningPlayer = await Player.findOne({ username: winner.winner });
             let losingPlayer = await Player.findOne({ username: winner.loser });
 

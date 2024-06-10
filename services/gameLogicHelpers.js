@@ -102,7 +102,7 @@ const simulateRound = async (cards, match) => {
     const roundOutcome = {}; // Initialize round outcome object
     const battleHistory = []; // Initialize battle history array
     const players = Object.keys(cards); // Get the list of players
-
+    let winner = null; // Initialize winner variable
     const player1 = players[0];
     const player2 = players[1];
     let cards1 = cards[player1];
@@ -148,7 +148,6 @@ const simulateRound = async (cards, match) => {
             const updatedBaseHealth = baseHealth - attacker.card.atk; // Calculate new base health
             match.playerStats.get(targetPlayer).baseHealth = updatedBaseHealth; // Update the in-memory object
             await match.updateOne({ [`playerStats.${targetPlayer}.baseHealth`]: updatedBaseHealth }); // Update base health in the database
-
             // Log battle history for base attack
             battleHistory.push({
                 attacker: attacker.player,
@@ -159,6 +158,10 @@ const simulateRound = async (cards, match) => {
                 damage: attacker.card.atk,
                 attackedBase: true
             });
+            winner = await checkWinConditionForBase(match.matchId, match.round);
+            if (winner) {
+                break;
+            }
         } else {
             // If attacking a card
             allCards = applyDamageAndUpdateHealth(attacker, newTarget, targetPlayer, match, allCards, battleHistory); // Apply damage and update health
@@ -190,9 +193,8 @@ const simulateRound = async (cards, match) => {
         [player2]: player2Cards
     });
     // Increment the round number
-    console.log('Battle History:', battleHistory);
     await match.save();
-    return match.round
+    return winner;
 };
 
 // Helper function to apply damage to a target card
@@ -248,7 +250,7 @@ const updateGameState = async (matchId, roundOutcomes) => {
 };
 
 // Helper function to check win conditions after each round
-const checkWinConditions = async (matchId, roundNumber) => {
+const checkWinConditionForBase = async (matchId, roundNumber) => {
     try {
         console.log("checkWinConditions");
         console.log("match roundNumber", roundNumber);
@@ -270,7 +272,23 @@ const checkWinConditions = async (matchId, roundNumber) => {
                 loser: match.playerStats.get(player1).baseHealth <= 0 ? player1 : player2
             };
         }
+        return null; // No winner yet
+    } catch (error) {
+        logger.error(`Error checking win conditions for match ${matchId}:`, error);
+        throw error;
+    }
+};
 
+const checkWinConditions = async (matchId, roundNumber) => {
+    try {
+        console.log("checkWinConditions");
+        console.log("match roundNumber", roundNumber);
+        // Retrieve the match data from the database
+        const match = await Match.findOne({ matchId });
+        if (!match) throw new Error('Match not found'); // Throw an error if the match is not found
+        const players = match.players;
+        const player1 = players[0];
+        const player2 = players[1];
         // If the maximum number of rounds is reached, determine the winner based on base health
         if (roundNumber >= 7) {
             console.log("roundNumber", roundNumber);
@@ -282,12 +300,11 @@ const checkWinConditions = async (matchId, roundNumber) => {
             };
 
         }
-        return null; // No winner yet
     } catch (error) {
         logger.error(`Error checking win conditions for match ${matchId}:`, error);
         throw error;
     }
-};
+}
 
 module.exports = {
     retrieveCardData,

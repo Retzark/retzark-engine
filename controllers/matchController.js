@@ -44,4 +44,16 @@ const resolveMatch = async (req, res) => {
     }
 };
 
+/**
+ * Join Waiting Room
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+
+const joinWaitingRoom = async (req, res) => {
+    const { txID, player } = req.body;
+    const result = await matchService.joinWaitingRoom(txID, player);
+    res.json(result);
+};
+
 module.exports = { getMatchDetails, revealCards, resolveMatch };

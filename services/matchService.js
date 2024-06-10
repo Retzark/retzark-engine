@@ -11,7 +11,6 @@ const { calculateMatchOutcome } = require('./gameLogicService');
 
 const getMatchDetails = async (matchId) => {
     const match = await Match.findOne({ matchId });
-    console.log("Fetched match details:", match);
     return match;
 };
 

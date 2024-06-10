@@ -41,9 +41,10 @@ const monitorMatchmaking = async (botName) => {
         if (matchId) {
             console.log(`Match found: ${matchId}`);
             await playMatch(matchId, botName);
+            await sleep(15000); // Wait for 10 seconds before checking again
         } else {
             console.log('Waiting for a match...');
-            await sleep(10000); // Wait for 10 seconds before checking again
+            await sleep(15000); // Wait for 10 seconds before checking again
         }
     }
 };
@@ -70,18 +71,21 @@ const playMatch = async (matchId, botName) => {
             console.log('Match completed.');
             break;
         }
-        if (matchDetails.round <= round) {
+        if (matchDetails.round === round) {
+            console.log(`Waiting for round ${round}...`)
             const previousRound = matchDetails.round - 1;
             const survivingCards = getSurvivingCards(matchDetails, previousRound);
             await playRound(matchId, matchDetails.round, survivingCards, botName);
             round++;
         }
-        await sleep(10000); // Wait for 10 seconds before checking the round status again
+        await sleep(15000); // Wait for 15 seconds before checking the round status again
     }
     const playerData = await fetchUserMatch();
     if (playerData && (playerData.status === 'In waiting room' || playerData.status === 'In a match')) {
         console.log(`Player ${botName} is in the waiting room or in a match.`);
     } else {
+        console.log(`Player ${botName} is not in the waiting room or in a match.`);
+        await sleep(10000); // Wait for 10 seconds before joining the waiting room again
         await joinWaitingRoom(botName, PrivateKey.from(process.env[`POSTING_KEY_${botName.toUpperCase()}`])); // Join the waiting room again after the match is completed
     }
 };
@@ -110,6 +114,9 @@ const playRound = async (matchId, round, survivingCards, botName) => {
         const matchDetails = await fetchMatchDetails(matchId);
         const player1 = matchDetails.players[0];
         const player2 = matchDetails.players[1];
+        console.log('Waiting for opponent to submit their card hash...');
+        console.log('Card Hashes:', matchDetails.cardHashes);
+        console.log("round:", round);
         if (matchDetails.cardHashes && matchDetails.cardHashes[round] && matchDetails.cardHashes[round][player1] && matchDetails.cardHashes[round][player2]) {
             console.log("Card Hashes length:", matchDetails.cardHashes[round]);
             console.log('Opponent has submitted their card hash.');
