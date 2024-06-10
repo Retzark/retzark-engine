@@ -201,6 +201,7 @@ const submitCardSelection = async (matchId, cardHash, botName) => {
         console.log('Transaction posted:', result);
     } catch (error) {
         console.error('Failed to post transaction:', error);
+        await submitCardSelection(matchId, cardHash, botName) // Retry if the transaction fails
     }
 };
 
