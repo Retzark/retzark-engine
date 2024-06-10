@@ -35,7 +35,6 @@ const revealCards = async (matchId, player, cards) => {
         return { success: false, message: 'Card verification failed' };
     }
 };
-
 const resolveMatch = async (matchId, winnerId, loserId, isRanked, totalManaWagered) => {
     try {
         const match = await Match.findOne({ matchId });
@@ -58,7 +57,6 @@ const resolveMatch = async (matchId, winnerId, loserId, isRanked, totalManaWager
         throw new Error(error.message);
     }
 };
-
 const updateMatchDetailsCardsPlayed = async (matchId, player, cards) => {
     try {
         const match = await Match.findOne({ matchId });
@@ -136,4 +134,19 @@ const updateMatchDetailsHash = async (matchId, player, hash) => {
         console.error('Error updating match details hash:', error);
     }
 };
-module.exports = { getMatchDetails, revealCards, resolveMatch, updateMatchDetailsHash, updateManaWagered, updateMatchDetailsCardsPlayed };
+const surrenderMatch = async (matchId, player) => {
+    try {
+        const match = await Match.findOne({matchId});
+        if (!match) throw new Error('Match not found');
+        if (match.status !== 'active') throw new Error('Match is not active');
+        if (!match.players.includes(player)) throw new Error('Player not found in match');
+        const winner = match.players.find(p => p !== player);
+        const loser = player;
+        await resolveMatch(matchId, winner, loser, false, 0);
+        return {success: true, message: 'Match surrendered successfully'};
+    } catch (error) {
+        console.error('Error surrendering match:', error);
+        return {success: false, message: error.message};
+    }
+}
+module.exports = { getMatchDetails, revealCards, resolveMatch, updateMatchDetailsHash, updateManaWagered, updateMatchDetailsCardsPlayed, surrenderMatch };

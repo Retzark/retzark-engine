@@ -190,7 +190,12 @@ const Fold = async (matchId, username, signature, betId) => {
     wager.status = 'folded';
     wager.winner = betTransaction.player;
     await wager.save();
-
+    const match = await Match.findOne({ matchId });
+    match.status = 'completed';
+    const players = match.players;
+    const winner = players.find(player => player !== betTransaction.player);
+    match.winner = winner;
+    await match.save();
     return { success: true, message: 'Bet Folded' };
 };
 

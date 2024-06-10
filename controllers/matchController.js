@@ -56,4 +56,10 @@ const joinWaitingRoom = async (req, res) => {
     res.json(result);
 };
 
-module.exports = { getMatchDetails, revealCards, resolveMatch };
+const surrenderMatch = async (req, res) => {
+    const { matchId, player } = req.body;
+    const result = await matchService.surrenderMatch(matchId, player);
+    res.json(result);
+};
+
+module.exports = { getMatchDetails, revealCards, resolveMatch, surrenderMatch};

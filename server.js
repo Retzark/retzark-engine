@@ -31,7 +31,7 @@ app.use('/log', logRoutes);
 
 connectDB();
 startBot(BOT_ACCOUNT_1);
-startBot(BOT_ACCOUNT_2);
+
 
 
 app.listen(port, () => {

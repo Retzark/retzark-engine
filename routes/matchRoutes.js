@@ -6,4 +6,5 @@ router.get('/:matchId', matchController.getMatchDetails);
 router.post('/reveal/:matchId', matchController.revealCards);
 router.post('/resolve', matchController.resolveMatch);
 //router('/joinWaitingRoom', matchController.joinWaitingRoom);
+router.post('/surrender', matchController.surrenderMatch);
 module.exports = router;

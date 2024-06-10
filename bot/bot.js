@@ -5,7 +5,8 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 const HIVE_NODE = process.env.HIVE_NODE || 'https://api.openhive.network';
 const client = new Client(HIVE_NODE, { timeout: 8000, failoverThreshold: 10 });
-const BASE_URL = 'http://localhost:3000';
+const PORT = process.env.PORT || 3000;
+const BASE_URL = 'http://localhost:' + PORT;
 
 const Card = require('../models/Card'); // Assuming the card model is in the models directory
 
@@ -117,6 +118,10 @@ const playRound = async (matchId, round, survivingCards, botName) => {
         console.log('Waiting for opponent to submit their card hash...');
         console.log('Card Hashes:', matchDetails.cardHashes);
         console.log("round:", round);
+        if (matchDetails.status === 'completed') {
+            console.log('Match completed.');
+            break;
+        }
         if (matchDetails.cardHashes && matchDetails.cardHashes[round] && matchDetails.cardHashes[round][player1] && matchDetails.cardHashes[round][player2]) {
             console.log("Card Hashes length:", matchDetails.cardHashes[round]);
             console.log('Opponent has submitted their card hash.');
