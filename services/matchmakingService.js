@@ -156,10 +156,24 @@ const matchPlayersByRank = async () => {
         console.log(`Matching players ${player1.username} and ${player2.username}`);
         console.log(`Player 1 rank: ${player1.rank}, Player 2 rank: ${player2.rank}`);
         if (Math.abs(player1.xp - player2.xp) <= 1000 && player1.rank === player2.rank) {
-            waitingPlayers.delete(player1.username);
-            waitingPlayers.delete(player2.username);
-            await createMatchmakingTransaction([player1.username, player2.username]);
-            i++; // Skip the next player as they have been matched
+            const buyIn = determineBuyIn(player1.rank);
+            if (player1.manaBalance < buyIn) {
+                waitingPlayers.delete(player1.username);
+                console.log(`Player ${player1.username} does not have enough MANA to play.`);
+                continue; // continue to the next player
+            } else if (player2.manaBalance < buyIn) {
+                waitingPlayers.delete(player2.username);
+                playersArray.splice(i + 1, 1); // Remove player 2 from the array
+                console.log(`Player ${player2.username} does not have enough MANA to play.`);
+                // Decrement i to match the next player with player 1
+                i--;
+                continue;
+            } else {
+                waitingPlayers.delete(player1.username);
+                waitingPlayers.delete(player2.username);
+                await createMatchmakingTransaction([player1.username, player2.username]);
+                i++; // Skip the next player as they have been matched
+            }
         }
     }
 };
