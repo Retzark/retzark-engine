@@ -6,15 +6,51 @@
 const Match = require('../models/Match');
 const Player = require('../models/Player');
 const Wager = require('../models/Wager');
-const { postTransaction } = require('./hiveService');
-const {determineBuyIn} = require('./manaService');
+const { postTransaction, getTx } = require('./hiveService');
+const { determineBuyIn } = require('./manaService');
 let waitingPlayers = new Set();
 let activeMatches = {};
 let matchCardSelections = {};
 let matchDetails = {};
+// Utility function to pause execution for a given time
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-const joinWaitingRoom = async (player) => {
-    // Check if player exists in the database
+const joinWaitingRoom = async (txID, player) => {
+    console.log("txID", txID.id);
+    let i = 0;
+    try {
+        const playerData = await Player.findOne({username: player});
+        if (!playerData) {
+            const newPlayer = new Player({username: player});
+            await newPlayer.save();
+        }
+        while (true){
+            const transaction = await getTx(txID.id);
+            if(transaction && transaction.operations){
+                const data = transaction.operations;
+                if (data[0][1].id !== 'RZ_JOIN_WAITING_ROOM') {
+                    console.error('Invalid operation ID');
+                    return {success: false, message: 'Invalid operation ID'};
+                }
+                await handleJoinRequest(data);
+                console.log("Transaction data:", data);
+                return {success: true, message: 'Player added to waiting room'};
+            }
+            if(i > 20){
+                return {success: true, message: 'Not able to find TX'};
+            }
+            await sleep(3000)
+            i++
+        }
+    } catch (error) {
+        console.error('Error joining waiting room:', error);
+        return {success: false, message: error.message};
+    }
+}
+
+const handleJoinRequest = async (data) => {
+    let player = data[0][1].required_posting_auths[0];
+    console.log('Join request received4:', player);
     let playerData = await Player.findOne({ username: player });
     console.log(`Player data: ${playerData}`);
     if (!playerData) {
@@ -23,10 +59,14 @@ const joinWaitingRoom = async (player) => {
         playerData = new Player({ username: player });
         await playerData.save();
     }
-
-    // Implementation of joining waiting room
-    waitingPlayers.add(player);
-    return { success: true, message: 'Player added to waiting room' };
+    console.log("Players name:", data[0][1].required_posting_auths[0]);
+    if (playerData.status === 'In waiting room' || playerData.status === 'In a match') {
+        console.log(`Player ${player} is already in the waiting room or in a match.`);
+        return;
+    } else {
+        waitingPlayers.add(data[0][1].required_posting_auths[0]);
+    }
+    console.log('Waiting players:', Array.from(waitingPlayers));
 };
 
 const createMatchmakingTransaction = async (players) => {
@@ -115,7 +155,7 @@ const matchPlayersByRank = async () => {
         const player2 = playersArray[i + 1];
         console.log(`Matching players ${player1.username} and ${player2.username}`);
         console.log(`Player 1 rank: ${player1.rank}, Player 2 rank: ${player2.rank}`);
-        if (Math.abs(player1.xp - player2.xp) <= 100 && player1.rank === player2.rank) {
+        if (Math.abs(player1.xp - player2.xp) <= 1000 && player1.rank === player2.rank) {
             waitingPlayers.delete(player1.username);
             waitingPlayers.delete(player2.username);
             await createMatchmakingTransaction([player1.username, player2.username]);

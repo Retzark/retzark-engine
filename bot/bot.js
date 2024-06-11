@@ -21,6 +21,11 @@ const joinWaitingRoom = async (botName) => {
 
     try {
         const result = await client.broadcast.json(ops[0], PrivateKey.from(process.env[`POSTING_KEY_${botName.toUpperCase()}`]));
+        const response = await axios.post(`${BASE_URL}/match/joinWaitingRoom`, {
+            txID: result,
+            player: botName
+        });
+        console.log("response:", response.data);
         console.log(`Player ${botName} joined the waiting room.`);
         console.log('Transaction posted:', result);
     } catch (error) {
@@ -202,6 +207,10 @@ const submitCardSelection = async (matchId, cardHash, botName) => {
 
     try {
         const result = await client.broadcast.json(ops[0], PrivateKey.from(process.env[`POSTING_KEY_${botName.toUpperCase()}`]));
+        const response = await axios.post(`${BASE_URL}/match/submitCardsHash`, {
+            txID: result,
+            player: botName
+        });
         console.log(`Card selection hash submitted for match ${matchId}.`);
         console.log('Transaction posted:', result);
     } catch (error) {

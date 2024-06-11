@@ -9,9 +9,11 @@
   "dependencies": {
     "@hiveio/dhive": "^1.0.0",
     "axios": "^1.7.2",
+    "bcryptjs": "^2.4.3",
     "crypto": "^1.0.1",
-    "dotenv": "^8.2.0",
+    "dotenv": "^8.6.0",
     "express": "^4.17.1",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^5.10.9",
     "winston": "^3.3.3"
   },

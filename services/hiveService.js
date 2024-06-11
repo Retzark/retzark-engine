@@ -28,4 +28,15 @@ const postTransaction = async (jsonData) => {
     }
 };
 
-module.exports = { postTransaction };
+const getTx = async (txId) => {
+    try {
+        const transaction = await client.database.getTransaction(txId);
+        console.log('Transaction:', transaction);
+        return transaction;
+    } catch (error) {
+        console.error('Failed to fetch transaction:', error);
+        return null;
+    }
+};
+
+module.exports = { postTransaction, getTx };

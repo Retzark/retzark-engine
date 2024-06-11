@@ -5,6 +5,7 @@ const matchController = require('../controllers/matchController');
 router.get('/:matchId', matchController.getMatchDetails);
 router.post('/reveal/:matchId', matchController.revealCards);
 router.post('/resolve', matchController.resolveMatch);
-//router('/joinWaitingRoom', matchController.joinWaitingRoom);
+router.post('/joinWaitingRoom', matchController.joinWaitingRoom);
 router.post('/surrender', matchController.surrenderMatch);
+router.post('/submitCardsHash', matchController.submitCardsHash);
 module.exports = router;

@@ -8,12 +8,14 @@ const Wager = require('../models/Wager');
 const Player = require('../models/Player');
 const { updateRank } = require('./rankUpdateService');
 const { calculateMatchOutcome } = require('./gameLogicService');
+const {getTx} = require("./hiveService");
+const {activeMatches, matchCardSelections} = require("./matchmakingService");
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const getMatchDetails = async (matchId) => {
     const match = await Match.findOne({ matchId });
     return match;
 };
-
 const revealCards = async (matchId, player, cards) => {
     const match = await Match.findOne({ matchId });
     if (!match) return { success: false, message: 'Match not found' };
@@ -149,4 +151,49 @@ const surrenderMatch = async (matchId, player) => {
         return {success: false, message: error.message};
     }
 }
-module.exports = { getMatchDetails, revealCards, resolveMatch, updateMatchDetailsHash, updateManaWagered, updateMatchDetailsCardsPlayed, surrenderMatch };
+const submitCardsHash = async (txID) => {
+    console.log("txID", txID.id);
+    let i = 0;
+    try {
+        while (true){
+            const transaction = await getTx(txID.id);
+            if(transaction && transaction.operations){
+                const data = transaction.operations;
+                if (data[0][1].id !== 'RZ_CARD_SELECTION') {
+                    console.error('Invalid operation ID');
+                    return {success: false, message: 'Invalid operation ID'};
+                }
+                await handleCardSelection(data);
+                console.log("Transaction data:", data);
+                return {success: true, message: 'Card hash submitted'};
+            }
+            if(i > 20){
+                return {success: true, message: 'Not able to find TX'};
+            }
+            await sleep(3000)
+            i++
+        }
+    } catch (error) {
+        console.error('Error submitting card hash:', error);
+        return {success: false, message: error.message};
+    }
+}
+const handleCardSelection = (data) => {
+    console.log('Card selection received:', data);
+    const player = data[0][1].required_posting_auths[0];
+    const matchId = activeMatches[player];
+    const cardHash = JSON.parse(data[0][1].json).hash;
+    console.log(`Player ${player} selected card hash: ${cardHash}`);
+    if (!matchId) {
+        console.error(`Player ${player} is not in an active match`);
+        return;
+    }
+    if (!matchCardSelections[matchId]) matchCardSelections[matchId] = {};
+    if (!matchCardSelections[matchId][player]) matchCardSelections[matchId][player] = {};
+
+    matchCardSelections[matchId][player].hash = cardHash;
+    console.log(`Stored card hash for player ${player} in match ${matchId}`);
+    // Update match details
+    updateMatchDetailsHash(matchId, player, cardHash);
+};
+module.exports = { getMatchDetails, revealCards, resolveMatch, updateMatchDetailsHash, updateManaWagered, updateMatchDetailsCardsPlayed, surrenderMatch, submitCardsHash };

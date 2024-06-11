@@ -1,5 +1,5 @@
 const { verifySignature } = require('../services/wageringService');
-const { waitingPlayers, activeMatches, matchCardSelections, joinWaitingRoom } = require('../services/matchmakingService');
+const { waitingPlayers, activeMatches, matchCardSelections } = require('../services/matchmakingService');
 const { updateMatchDetailsHash } = require('../services/matchService');
 const Player = require("../models/Player");
 const Match = require("../models/Match");

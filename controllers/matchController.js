@@ -4,6 +4,7 @@
  */
 
 const matchService = require('../services/matchService');
+const matchMakingService = require('../services/matchmakingService');
 
 /**
  * Get Match Details
@@ -52,7 +53,13 @@ const resolveMatch = async (req, res) => {
 
 const joinWaitingRoom = async (req, res) => {
     const { txID, player } = req.body;
-    const result = await matchService.joinWaitingRoom(txID, player);
+    const result = await matchMakingService.joinWaitingRoom(txID, player);
+    res.json(result);
+};
+
+const submitCardsHash = async (req, res) => {
+    const { txID, player } = req.body;
+    const result = await matchService.submitCardsHash(txID, player);
     res.json(result);
 };
 
@@ -62,4 +69,4 @@ const surrenderMatch = async (req, res) => {
     res.json(result);
 };
 
-module.exports = { getMatchDetails, revealCards, resolveMatch, surrenderMatch};
+module.exports = { getMatchDetails, revealCards, resolveMatch, surrenderMatch, joinWaitingRoom, submitCardsHash};
