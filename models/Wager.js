@@ -22,7 +22,9 @@ const wagerSchema = new mongoose.Schema({
     },
     totalPool: { type: Number, required: true },
     winner: { type: String },
-    status: { type: String, default: 'pending' }
+    status: { type: String, default: 'pending' },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model('Wager', wagerSchema);

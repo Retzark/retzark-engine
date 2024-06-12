@@ -94,7 +94,9 @@ const createMatchmakingTransaction = async (players) => {
             [players[1]]: { energy: 8, baseHealth: 15 }
         },
         rank: matchRank,
-        totalManaPool: determineBuyIn(matchRank) * 2
+        totalManaPool: determineBuyIn(matchRank) * 2,
+        createdAt: new Date(),
+        updatedAt: new Date()
     });
     // Create a wager for the match
     const wager = await Wager.create({
@@ -108,7 +110,9 @@ const createMatchmakingTransaction = async (players) => {
             [players[1]]: { status: 'pending' }
         },
         totalPool: determineBuyIn(matchRank) * 2,
-        status: 'pending'
+        status: 'pending',
+        createdAt: new Date(),
+        updatedAt: new Date()
     });
     console.log('New match created:', newMatch);
     console.log('Creating match for:', players);
@@ -156,7 +160,9 @@ const matchPlayersByRank = async () => {
         console.log(`Matching players ${player1.username} and ${player2.username}`);
         console.log(`Player 1 rank: ${player1.rank}, Player 2 rank: ${player2.rank}`);
         if (Math.abs(player1.xp - player2.xp) <= 1000 && player1.rank === player2.rank) {
-            const buyIn = determineBuyIn(player1.rank);
+            const buyIn = await determineBuyIn(player1.rank);
+            console.log("Player1 mana balance:", player1.manaBalance);
+            console.log("Player2 mana balance:", player2.manaBalance);
             if (player1.manaBalance < buyIn) {
                 waitingPlayers.delete(player1.username);
                 console.log(`Player ${player1.username} does not have enough MANA to play.`);

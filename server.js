@@ -16,6 +16,7 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3000;
 const BOT_ACCOUNT_1 = process.env.BOT_ACCOUNT_1;
+const BOT_ACCOUNT_2 = process.env.BOT_ACCOUNT_2;
 
 app.use(express.json());
 app.use('/', indexRoutes);
@@ -31,6 +32,7 @@ app.use('/api/auth', emailAuthRoutes);
 
 connectDB();
 startBot(BOT_ACCOUNT_1);
+startBot(BOT_ACCOUNT_2);
 
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);

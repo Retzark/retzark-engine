@@ -5,6 +5,7 @@
 const Match = require('../models/Match');
 const Card = require('../models/Card');
 const Player = require('../models/Player');
+const RetReward = require('../models/RetReward');
 const { activeMatches } = require("../services/matchmakingService");
 const { determineCardOrder, simulateRound, calculateDamage, applyDamage, updateGameState, checkWinConditions } = require('./gameLogicHelpers');
 
@@ -108,7 +109,18 @@ const calculateMatchOutcome = async (matchId) => {
             }
             losingPlayer.manaBalance -= match.totalManaPool / 2;
             winningPlayer.manaBalance -= match.totalManaPool / 2;
-
+            let rank = winningPlayer.rank;
+            // Remove the space in the rank string
+            rank = rank.replace(/\s/g, '');
+            const retReward = await RetReward.findOne({ rewards: { $exists: true } });
+            //rewards: { type: Object, default: {} }
+            // Create and object to store the rewards with the Key RET and the value of the reward
+            let rewards = {};
+            console.log("Rank: ", rank);
+            console.log("Reward: ", retReward.rewards);
+            console.log("Rewards: ", retReward.rewards.get(rank));
+            rewards.RET = retReward.rewards.get(rank);
+            match.rewards = rewards;
             await losingPlayer.save();
             await winningPlayer.save();
         }

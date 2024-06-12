@@ -7,7 +7,9 @@ const cardSchema = new mongoose.Schema({
     atk: { type: Number, required: true },
     spd: { type: Number, required: true },
     egy: { type: Number, required: true },
-    rarity: { type: String, required: true }
+    rarity: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model('Card', cardSchema);

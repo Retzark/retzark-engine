@@ -27,7 +27,9 @@ const matchSchema = new mongoose.Schema({
         of: Number,
         default: {}
     },
-    rank: { type: String, default: 'rookie 1' }
+    rank: { type: String, default: 'rookie 1' },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model('Match', matchSchema);
