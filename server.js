@@ -11,6 +11,10 @@ const wageringRoutes = require('./routes/wageringRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const logRoutes = require('./routes/logRoutes');
 const emailAuthRoutes = require('./routes/emailAuth');
+const purchaseRoutes = require('./routes/purchaseRoutes');
+const affiliateRoutes = require('./routes/affiliateRoutes');
+const userRoutes = require('./routes/userRoutes');
+
 const { startBot } = require('./bot/bot');
 require('dotenv').config();
 const app = express();
@@ -27,8 +31,12 @@ app.use('/leaderboard', leaderboardRoutes);
 app.use('/mana', manaRoutes);
 app.use('/wager', wageringRoutes);
 app.use('/admin', adminRoutes);
+app.use('/purchase' , purchaseRoutes);
 app.use('/log', logRoutes);
 app.use('/api/auth', emailAuthRoutes);
+app.use('/affiliate', affiliateRoutes);
+app.use('/purchase', purchaseRoutes);
+app.use('/users', userRoutes); // Use user routes
 
 connectDB();
 startBot(BOT_ACCOUNT_1);
