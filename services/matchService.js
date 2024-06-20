@@ -152,11 +152,11 @@ const surrenderMatch = async (matchId, player) => {
     }
 }
 const submitCardsHash = async (txID) => {
-    console.log("txID", txID.id);
+    console.log("txID", txID);
     let i = 0;
     try {
         while (true){
-            const transaction = await getTx(txID.id);
+            const transaction = await getTx(txID);
             if(transaction && transaction.operations){
                 const data = transaction.operations;
                 if (data[0][1].id !== 'RZ_CARD_SELECTION') {

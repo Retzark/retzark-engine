@@ -209,7 +209,7 @@ const submitCardSelection = async (matchId, cardHash, botName) => {
     try {
         const result = await client.broadcast.json(ops[0], PrivateKey.from(process.env[`POSTING_KEY_${botName.toUpperCase()}`]));
         const response = await axios.post(`${BASE_URL}/match/submitCardsHash`, {
-            txID: result,
+            txID: result.id,
             player: botName
         });
         console.log(`Card selection hash submitted for match ${matchId}.`);
