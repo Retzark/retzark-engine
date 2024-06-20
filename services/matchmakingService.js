@@ -16,7 +16,7 @@ let matchDetails = {};
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const joinWaitingRoom = async (txID, player) => {
-    console.log("txID", txID.id);
+    console.log("txID", txID);
     let i = 0;
     try {
         const playerData = await Player.findOne({username: player});
@@ -25,7 +25,7 @@ const joinWaitingRoom = async (txID, player) => {
             await newPlayer.save();
         }
         while (true){
-            const transaction = await getTx(txID.id);
+            const transaction = await getTx(txID);
             if(transaction && transaction.operations){
                 const data = transaction.operations;
                 if (data[0][1].id !== 'RZ_JOIN_WAITING_ROOM') {

@@ -21,8 +21,9 @@ const joinWaitingRoom = async (botName) => {
 
     try {
         const result = await client.broadcast.json(ops[0], PrivateKey.from(process.env[`POSTING_KEY_${botName.toUpperCase()}`]));
+        console.log("result:", result);
         const response = await axios.post(`${BASE_URL}/match/joinWaitingRoom`, {
-            txID: result,
+            txID: result.id,
             player: botName
         });
         console.log("response:", response.data);
