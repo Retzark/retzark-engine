@@ -5,24 +5,24 @@ const Player = require("../models/Player");
 const Match = require("../models/Match");
 
 const handleJoinRequest = async (data) => {
+    const deckHash = JSON.parse(data.json).deckHash;
     console.log('Join request received:', data);
     let player = data.required_posting_auths[0];
     let playerData = await Player.findOne({ username: player });
     console.log(`Player data: ${playerData}`);
     if (!playerData) {
-        // Add new player to the database
         console.log(`Player ${player} not found. Adding to database...`);
         playerData = new Player({ username: player });
         await playerData.save();
     }
-    console.log("Players name:", data.required_posting_auths[0]);
+    console.log("Player's name:", player);
     if (playerData.status === 'In waiting room' || playerData.status === 'In a match') {
         console.log(`Player ${player} is already in the waiting room or in a match.`);
         return;
     } else {
-        waitingPlayers.add(data.required_posting_auths[0]);
+        waitingPlayers.add({ username: player, deckHash: deckHash });
     }
-    console.log('Waiting players:', Array.from(waitingPlayers));
+    console.log('Waiting players:', Array.from(waitingPlayers).map(p => p.username));
 };
 
 const handleCardSelection = (data) => {

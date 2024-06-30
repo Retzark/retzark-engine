@@ -85,6 +85,10 @@ const createMatchmakingTransaction = async (players) => {
         // Remove the number from the matchRank rookie 1 -> rookie
         matchId: matchId,
         players: players,
+        deckHashes: {
+            [players[0].username]: players[0].deckHash,
+            [players[1].username]: players[1].deckHash
+        },
         status: 'active',
         waitingFor: players, // Initially waiting for all players
         cardsPlayed: {},

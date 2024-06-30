@@ -178,6 +178,35 @@ const submitCardsHash = async (txID) => {
         return {success: false, message: error.message};
     }
 }
+
+const submitDeck = async (matchId, player, deckHash, cardHashes) => {
+    const match = await Match.findOne({ matchId });
+    if (!match) {
+        throw new Error('Match not found');
+    }
+
+    if (!match.players.includes(player)) {
+        throw new Error('Player not in this match');
+    }
+
+    // Update the match with the submitted deck information
+    match.decks = match.decks || {};
+    match.decks[player] = { deckHash, cardHashes };
+
+    // Check if both players have submitted their decks
+    if (Object.keys(match.decks).length === 2) {
+        match.status = 'decks_submitted';
+    }
+
+    await match.save();
+
+    return {
+        success: true,
+        message: 'Deck submitted successfully',
+        status: match.status
+    };
+};
+
 const handleCardSelection = (data) => {
     console.log('Card selection received:', data);
     const player = data[0][1].required_posting_auths[0];
@@ -196,4 +225,5 @@ const handleCardSelection = (data) => {
     // Update match details
     updateMatchDetailsHash(matchId, player, cardHash);
 };
-module.exports = { getMatchDetails, revealCards, resolveMatch, updateMatchDetailsHash, updateManaWagered, updateMatchDetailsCardsPlayed, surrenderMatch, submitCardsHash };
+
+module.exports = { getMatchDetails, revealCards, resolveMatch, updateMatchDetailsHash, updateManaWagered, updateMatchDetailsCardsPlayed, surrenderMatch, submitCardsHash, submitDeck};

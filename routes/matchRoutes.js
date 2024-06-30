@@ -8,4 +8,5 @@ router.post('/resolve', matchController.resolveMatch);
 router.post('/joinWaitingRoom', matchController.joinWaitingRoom);
 router.post('/surrender', matchController.surrenderMatch);
 router.post('/submitCardsHash', matchController.submitCardsHash);
+router.post('/:matchId/submitDeck', matchController.submitDeck);
 module.exports = router;

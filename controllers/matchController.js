@@ -69,4 +69,17 @@ const surrenderMatch = async (req, res) => {
     res.json(result);
 };
 
-module.exports = { getMatchDetails, revealCards, resolveMatch, surrenderMatch, joinWaitingRoom, submitCardsHash};
+const submitDeck = async (req, res) => {
+    const { matchId } = req.params;
+    const { player, deckHash, cardHashes } = req.body;
+
+    try {
+        const result = await matchService.submitDeck(matchId, player, deckHash, cardHashes);
+        res.json(result);
+    } catch (error) {
+        console.error('Error submitting deck:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+module.exports = { getMatchDetails, revealCards, resolveMatch, surrenderMatch, joinWaitingRoom, submitCardsHash, submitDeck};

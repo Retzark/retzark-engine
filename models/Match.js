@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const matchSchema = new mongoose.Schema({
     matchId: { type: String, required: true, unique: true },
     players: { type: [String], required: true },
+    deckHashes: { type: Map, of: String },
     round: { type: Number, default: 1 },
     waitingFor: { type: [String], default: [] },
     cardsPlayed: { type: Object, default: {} },
