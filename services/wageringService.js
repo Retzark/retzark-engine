@@ -118,6 +118,16 @@ const Call = async (matchId, username, signature, betId) => {
     wager.player1Wager = wager.player1Wager + betTransaction.amount;
     wager.player2Wager = wager.player2Wager + betTransaction.amount;
     wager.totalPool = wager.totalPool + betTransaction.amount * 2;
+
+    // Update the player's status in playerStats
+    if (wager.playerStats instanceof Map) {
+        const playerStats = wager.playerStats.get(username);
+        if (playerStats) {
+            playerStats.status = 'called';
+            wager.playerStats.set(username, playerStats);
+        }
+    }
+
     await wager.save();
 
     return { success: true, message: 'Bet Called' };
@@ -165,6 +175,16 @@ const Raise = async (matchId, username, signature, betId, raiseAmount) => {
     wager.player1Wager = wager.player1Wager + betTransaction.amount;
     wager.player2Wager = wager.player2Wager + betTransaction.amount;
     wager.totalPool = wager.totalPool + betTransaction.amount * 2;
+
+    // Update the player's status in playerStats
+    if (wager.playerStats instanceof Map) {
+        const playerStats = wager.playerStats.get(username);
+        if (playerStats) {
+            playerStats.status = 'raised';
+            wager.playerStats.set(username, playerStats);
+        }
+    }
+
     await wager.save();
 
     return { success: true, message: 'Bet Raised' };
@@ -189,6 +209,16 @@ const Fold = async (matchId, username, signature, betId) => {
     transaction.status = 'folded';
     wager.status = 'folded';
     wager.winner = betTransaction.player;
+
+    // Update the player's status in playerStats
+    if (wager.playerStats instanceof Map) {
+        const playerStats = wager.playerStats.get(username);
+        if (playerStats) {
+            playerStats.status = 'folded';
+            wager.playerStats.set(username, playerStats);
+        }
+    }
+
     await wager.save();
     const match = await Match.findOne({ matchId });
     match.status = 'completed';
