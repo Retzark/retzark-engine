@@ -12,7 +12,7 @@ const getManaBalance = async (username) => {
 };
 
 const rankBuyInMap = {
-    'rookie': 50,
+    'rookie': 1,
     'adept': 100,
     'expert': 150,
     'master': 200,
