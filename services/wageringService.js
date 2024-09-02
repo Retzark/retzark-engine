@@ -92,7 +92,7 @@ const Bet = async (username, matchId, wagerAmount, signature) => {
         transactionId: betTransaction._id,
         status: "pending",
         amount: wagerAmount,
-        type: 'bet'
+        betType: 'bet'
     });
     // Save the updated wager
     await wager.save();
@@ -173,7 +173,7 @@ const Raise = async (matchId, username, signature, betId, raiseAmount) => {
         transactionId: raisedBetTransaction._id,
         status: raisedBetTransaction.status,
         amount: raiseAmount,
-        type: 'raise'
+        betType: 'raise'
     });
     wager.status = 'raised';
     // Save the updated wager

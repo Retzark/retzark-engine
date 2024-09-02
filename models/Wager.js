@@ -13,10 +13,12 @@ const wagerSchema = new mongoose.Schema({
         })
     },
     betTransactions: {
-        transactionId: String,
-        status: String,
-        amount: Number,
-        type: String,
+        type: [{
+            transactionId: String,
+            status: String,
+            amount: Number,
+            betType: String
+        }],
         default: []
     },
     totalPool: { type: Number, required: true },
