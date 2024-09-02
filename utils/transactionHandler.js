@@ -20,7 +20,7 @@ const handleJoinRequest = async (data) => {
         console.log(`Player ${player} is already in the waiting room or in a match.`);
         return;
     } else {
-        waitingPlayers.add({ username: player});
+        waitingPlayers.add(player);
     }
     console.log('Waiting players:', Array.from(waitingPlayers).map(p => p.username));
 };
