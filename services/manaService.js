@@ -12,20 +12,20 @@ const getManaBalance = async (username) => {
 };
 
 const rankBuyInMap = {
-    'rookie': 5,
-    'adept': 10,
-    'expert': 15,
-    'master': 20,
-    'grandmaster': 25,
-    'transcendent': 25
+    'rookie': 50,
+    'adept': 100,
+    'expert': 150,
+    'master': 200,
+    'grandmaster': 250,
+    'transcendent': 250
 };
 const rankDailyManaMap = {
-    'rookie': 100,
-    'adept': 200,
-    'expert': 300,
-    'master': 400,
-    'grandmaster': 500,
-    'transcendent': 500
+    'rookie': 1000,
+    'adept': 2000,
+    'expert': 3000,
+    'master': 4000,
+    'grandmaster': 5000,
+    'transcendent': 5000
 };
 
 const determineBuyIn = (rank) => {

@@ -12,11 +12,12 @@ const wagerSchema = new mongoose.Schema({
             status: { type: String, default: 'pending' },
         })
     },
-    // bet transactions with status 'pending', 'called', 'raised', 'folded'
     betTransactions: {
         type: [{
             transactionId: String,
-            status: String
+            status: String,
+            amount: Number,
+            type: String
         }],
         default: []
     },
@@ -26,5 +27,6 @@ const wagerSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });
+
 
 module.exports = mongoose.model('Wager', wagerSchema);

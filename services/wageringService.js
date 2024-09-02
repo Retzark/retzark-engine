@@ -57,7 +57,7 @@ const Bet = async (username, matchId, wagerAmount, signature) => {
     // if (!isValid) return { success: false, message: 'Invalid signature' };
     console.log("Match ID: ", matchId);
     const match = await Match.findOne({ matchId });
-    if (!match) return false;
+    if (!match) return { success: false, message: 'Match not found' };
     const round = match.round;
     const betTransaction = await BetTransaction.create({
         matchId: matchId,
@@ -90,7 +90,9 @@ const Bet = async (username, matchId, wagerAmount, signature) => {
     // betTransactions with status 'pending'
     wager.betTransactions.push({
         transactionId: betTransaction._id,
-        status: "pending"
+        status: "pending",
+        amount: wagerAmount,
+        type: 'bet'
     });
     // Save the updated wager
     await wager.save();
@@ -114,6 +116,7 @@ const Call = async (matchId, username, signature, betId) => {
     if (!transaction) return { success: false, message: 'Transaction not found in wager' };
 
     transaction.status = 'called';
+    transaction.amount = betTransaction.amount;
     wager.status = 'called';
     wager.player1Wager = wager.player1Wager + betTransaction.amount;
     wager.player2Wager = wager.player2Wager + betTransaction.amount;
@@ -136,7 +139,7 @@ const Call = async (matchId, username, signature, betId) => {
 const Raise = async (matchId, username, signature, betId, raiseAmount) => {
     console.log("Bet ID: ", betId);
     const match = await Match.findOne({ matchId });
-    if (!match) return false;
+    if (!match) return { success: false, message: 'Match not found' };
     const round = match.round;
     const wager = await Wager.findOne({ matchId });
     if (!wager) return { success: false, message: 'Wager not found' };
@@ -168,7 +171,9 @@ const Raise = async (matchId, username, signature, betId, raiseAmount) => {
     // Add the new BetTransaction to wager.betTransactions
     wager.betTransactions.push({
         transactionId: raisedBetTransaction._id,
-        status: raisedBetTransaction.status
+        status: raisedBetTransaction.status,
+        amount: raiseAmount,
+        type: 'raise'
     });
     wager.status = 'raised';
     // Save the updated wager
