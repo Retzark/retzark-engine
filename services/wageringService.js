@@ -113,10 +113,12 @@ const Call = async (matchId, username, signature, betId) => {
 
     // Find and update the corresponding transaction in wager.betTransactions
     const transaction = wager.betTransactions.find(t => t.transactionId === betId);
+    console.log(transaction)
     if (!transaction) return { success: false, message: 'Transaction not found in wager' };
 
     transaction.status = 'called';
     transaction.amount = betTransaction.amount;
+
     wager.status = 'called';
     wager.player1Wager = wager.player1Wager + betTransaction.amount;
     wager.player2Wager = wager.player2Wager + betTransaction.amount;
@@ -132,7 +134,7 @@ const Call = async (matchId, username, signature, betId) => {
     }
 
     await wager.save();
-
+    console.log(wager)
     return { success: true, message: 'Bet Called' };
 };
 
