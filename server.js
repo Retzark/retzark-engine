@@ -16,6 +16,8 @@ const affiliateRoutes = require('./routes/affiliateRoutes');
 const userRoutes = require('./routes/userRoutes');
 
 const { startBot } = require('./bot/bot');
+const cron = require('node-cron');
+const { updateMana } = require('./scripts/updateMana');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3000;
@@ -49,4 +51,11 @@ app.listen(port, () => {
         const { matchPlayersByRank } = require('./services/matchmakingService');
         await matchPlayersByRank();
     }, 30000); // 30 seconds interval
+
+    // Schedule daily mana update at midnight
+    cron.schedule('0 0 * * *', async () => {
+        console.log('Running daily mana update');
+        await updateMana();
+        console.log('Daily mana update completed');
+    });
 });
