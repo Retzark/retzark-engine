@@ -135,6 +135,8 @@ const Call = async (matchId, username, signature, betId) => {
             wager.playerStats.set(username, playerStats);
         }
     }
+    const match = await Match.findOne({ matchId });
+    if (!match) return { success: false, message: 'Match not found' };
     const round = match.round;
     wager.round = round;
     await wager.save();
