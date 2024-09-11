@@ -4,7 +4,8 @@
   "description": "Retzark Engine for handling game-related transactions and communications with the Hive blockchain.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "jest"
   },
   "dependencies": {
     "@hiveio/dhive": "^1.0.0",
