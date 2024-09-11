@@ -20,6 +20,22 @@ const calculateMatchOutcome = async (matchId) => {
             const previousRound = match.round - 1;
             const remainingCards = match.remainingCards.get(previousRound.toString());
 
+            // Update the Wager round to the current round
+            const wager = await Wager.findOne({ matchId: matchId });
+            if (wager) {
+                wager.round = match.round;
+            
+                // Add the next round to playerStats in the match Wager
+                for (const player of match.players) {
+                    const playerStats = wager.playerStats.get(player);
+                    if (playerStats && playerStats.rounds) {
+                        playerStats.rounds.set(match.round.toString(), { completed: false });
+                    }
+                }
+            
+                await wager.save();
+            }
+
             // Ensure that the cards played in the current round match the remaining cards from the previous round
             for (const player of match.players) {
                 match.playerStats.get(player).energy = 8 + (match.round - 1);
