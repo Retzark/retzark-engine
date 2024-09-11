@@ -10,6 +10,12 @@ const wagerSchema = new mongoose.Schema({
         type: Map,
         of: new mongoose.Schema({
             status: { type: String, default: 'pending' },
+            rounds: {
+                type: Map,
+                of: new mongoose.Schema({
+                    completed: { type: Boolean, default: false }
+                })
+            }
         })
     },
     betTransactions: {
