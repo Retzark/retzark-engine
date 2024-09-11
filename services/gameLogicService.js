@@ -6,6 +6,7 @@ const Match = require('../models/Match');
 const Card = require('../models/Card');
 const Player = require('../models/Player');
 const RetReward = require('../models/RetReward');
+const Wager = require('../models/Wager');
 const { activeMatches } = require("../services/matchmakingService");
 const { determineCardOrder, simulateRound, calculateDamage, applyDamage, updateGameState, checkWinConditions } = require('./gameLogicHelpers');
 
@@ -24,7 +25,7 @@ const calculateMatchOutcome = async (matchId) => {
             const wager = await Wager.findOne({ matchId: matchId });
             if (wager) {
                 wager.round = match.round;
-            
+
                 // Add the next round to playerStats in the match Wager
                 for (const player of match.players) {
                     const playerStats = wager.playerStats.get(player);
@@ -32,7 +33,7 @@ const calculateMatchOutcome = async (matchId) => {
                         playerStats.rounds.set(match.round.toString(), { completed: false });
                     }
                 }
-            
+
                 await wager.save();
             }
 
