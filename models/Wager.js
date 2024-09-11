@@ -17,13 +17,15 @@ const wagerSchema = new mongoose.Schema({
             transactionId: String,
             status: String,
             amount: Number,
-            betType: String
+            betType: String,
+            round: Number
         }],
         default: []
     },
     totalPool: { type: Number, required: true },
     winner: { type: String },
     status: { type: String, default: 'pending' },
+    round: {type: Number, default: 1 },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });

@@ -115,6 +115,7 @@ const createMatchmakingTransaction = async (players) => {
         },
         totalPool: determineBuyIn(matchRank) * 2,
         status: 'pending',
+        round: 1,
         createdAt: new Date(),
         updatedAt: new Date()
     });

@@ -45,7 +45,8 @@ const Check = async (username, matchId) => {
     // Update the player's status
     playerStats.status = 'checked';
     wager.playerStats.set(username, playerStats);
-
+    const round = match.round;
+    wager.round = round;
     // Save the updated wager
     await wager.save();
 
@@ -87,12 +88,14 @@ const Bet = async (username, matchId, wagerAmount, signature) => {
     // Update the player's status
     playerStats.status = 'bet';
     wager.playerStats.set(username, playerStats);
+    wager.round = round;
     // betTransactions with status 'pending'
     wager.betTransactions.push({
         transactionId: betTransaction._id,
         status: "pending",
         amount: wagerAmount,
-        betType: 'bet'
+        betType: 'bet',
+        round: round
     });
     // Save the updated wager
     await wager.save();
@@ -132,7 +135,8 @@ const Call = async (matchId, username, signature, betId) => {
             wager.playerStats.set(username, playerStats);
         }
     }
-
+    const round = match.round;
+    wager.round = round;
     await wager.save();
     console.log(wager)
     return { success: true, message: 'Bet Called' };
@@ -191,7 +195,7 @@ const Raise = async (matchId, username, signature, betId, raiseAmount) => {
             wager.playerStats.set(username, playerStats);
         }
     }
-
+    wager.round = round;
     await wager.save();
 
     return { success: true, message: 'Bet Raised' };
@@ -225,9 +229,10 @@ const Fold = async (matchId, username, signature, betId) => {
             wager.playerStats.set(username, playerStats);
         }
     }
-
-    await wager.save();
     const match = await Match.findOne({ matchId });
+    const round = match.round;
+    wager.round = round;
+    await wager.save();
     match.status = 'completed';
     const players = match.players;
     const winner = players.find(player => player !== betTransaction.player);
