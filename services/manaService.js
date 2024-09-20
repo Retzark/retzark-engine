@@ -34,6 +34,20 @@ const rankBuyInMap = {
     'transcendent': 250
 };
 
+const rankMaxBetMap = {
+    'rookie': 10,
+    'adept': 100,
+    'expert': 150,
+    'master': 200,
+    'grandmaster': 250,
+    'transcendent': 500
+};
+
+const getMaxBetForRank = (rank) => {
+    console.log('Determining max bet for rank:', rank, 'max-bet:', rankMaxBetMap[rank] || 0);
+    return rankMaxBetMap[rank] || 0;
+};
+
 const determineBuyIn = (rank) => {
     console.log('Determining buy-in for rank:', rank, 'buy-in:', rankBuyInMap[rank] || 0);
     return rankBuyInMap[rank] || 0; // Return the buy-in for the given rank, or 0 if the rank is not found

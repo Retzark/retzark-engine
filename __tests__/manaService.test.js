@@ -6,10 +6,20 @@ const { updateMana } = require('../scripts/updateMana');
 
 let mongoServer;
 
+// Increase Jest's default timeout
+jest.setTimeout(60000);
+
+// Custom timeout for Mongoose operations
+const MONGOOSE_TIMEOUT = 30000;
+
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const mongoUri = mongoServer.getUri();
-  await mongoose.connect(mongoUri);
+  await mongoose.connect(mongoUri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: MONGOOSE_TIMEOUT
+  });
 });
 
 afterAll(async () => {
@@ -18,7 +28,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  await Player.deleteMany({});
+  await Player.deleteMany({}).maxTimeMS(MONGOOSE_TIMEOUT);
 });
 
 describe('Mana Service', () => {
@@ -40,7 +50,7 @@ describe('Mana Service', () => {
   describe('getManaBalance', () => {
     it('should return correct mana balances for existing player', async () => {
       const player = new Player({ username: 'testplayer', maxManaBalance: 2000, currentManaBalance: 1500 });
-      await player.save();
+      await player.save().maxTimeMS(MONGOOSE_TIMEOUT);
 
       const result = await getManaBalance('testplayer');
       expect(result).toEqual({ maxManaBalance: 2000, currentManaBalance: 1500 });
@@ -59,13 +69,13 @@ describe('Mana Service', () => {
         new Player({ username: 'adept1', rank: 'adept', maxManaBalance: 2000, currentManaBalance: 1000 }),
         new Player({ username: 'expert1', rank: 'expert', maxManaBalance: 3000, currentManaBalance: 1500 }),
       ];
-      await Player.insertMany(players);
+      await Player.insertMany(players).maxTimeMS(MONGOOSE_TIMEOUT);
 
       await updateMana();
 
-      const updatedRookie = await Player.findOne({ username: 'rookie1' });
-      const updatedAdept = await Player.findOne({ username: 'adept1' });
-      const updatedExpert = await Player.findOne({ username: 'expert1' });
+      const updatedRookie = await Player.findOne({ username: 'rookie1' }).maxTimeMS(MONGOOSE_TIMEOUT);
+      const updatedAdept = await Player.findOne({ username: 'adept1' }).maxTimeMS(MONGOOSE_TIMEOUT);
+      const updatedExpert = await Player.findOne({ username: 'expert1' }).maxTimeMS(MONGOOSE_TIMEOUT);
 
       expect(updatedRookie.maxManaBalance).toBe(1000);
       expect(updatedRookie.currentManaBalance).toBe(1000);
@@ -77,11 +87,11 @@ describe('Mana Service', () => {
 
     it('should handle players with number in rank', async () => {
       const player = new Player({ username: 'rookie2', rank: 'rookie 2', maxManaBalance: 1000, currentManaBalance: 800 });
-      await player.save();
+      await player.save().maxTimeMS(MONGOOSE_TIMEOUT);
 
       await updateMana();
 
-      const updatedPlayer = await Player.findOne({ username: 'rookie2' });
+      const updatedPlayer = await Player.findOne({ username: 'rookie2' }).maxTimeMS(MONGOOSE_TIMEOUT);
       expect(updatedPlayer.maxManaBalance).toBe(1000);
       expect(updatedPlayer.currentManaBalance).toBe(1000);
     });
@@ -90,14 +100,14 @@ describe('Mana Service', () => {
   describe('Mana deduction', () => {
     it('should correctly deduct mana for a match', async () => {
       const player = new Player({ username: 'testplayer', rank: 'rookie', maxManaBalance: 1000, currentManaBalance: 1000 });
-      await player.save();
+      await player.save().maxTimeMS(MONGOOSE_TIMEOUT);
 
       // Simulate a match where 100 mana is wagered
       player.currentManaBalance -= 100;
       player.manaHistory.push({ change: -100, reason: 'Match wager' });
-      await player.save();
+      await player.save().maxTimeMS(MONGOOSE_TIMEOUT);
 
-      const updatedPlayer = await Player.findOne({ username: 'testplayer' });
+      const updatedPlayer = await Player.findOne({ username: 'testplayer' }).maxTimeMS(MONGOOSE_TIMEOUT);
       expect(updatedPlayer.currentManaBalance).toBe(900);
       expect(updatedPlayer.manaHistory).toHaveLength(1);
       expect(updatedPlayer.manaHistory[0].change).toBe(-100);
@@ -105,17 +115,17 @@ describe('Mana Service', () => {
 
     it('should not allow mana to go below 0', async () => {
       const player = new Player({ username: 'testplayer', rank: 'rookie', maxManaBalance: 1000, currentManaBalance: 50 });
-      await player.save();
+      await player.save().maxTimeMS(MONGOOSE_TIMEOUT);
 
       // Attempt to deduct more mana than available
       await expect(async () => {
         if (player.currentManaBalance < 100) throw new Error('Insufficient mana');
         player.currentManaBalance -= 100;
         player.manaHistory.push({ change: -100, reason: 'Match wager' });
-        await player.save();
+        await player.save().maxTimeMS(MONGOOSE_TIMEOUT);
       }).rejects.toThrow('Insufficient mana');
 
-      const updatedPlayer = await Player.findOne({ username: 'testplayer' });
+      const updatedPlayer = await Player.findOne({ username: 'testplayer' }).maxTimeMS(MONGOOSE_TIMEOUT);
       expect(updatedPlayer.currentManaBalance).toBe(50);  // Balance should remain unchanged
       expect(updatedPlayer.manaHistory).toHaveLength(0);  // No history entry should be added
     });
