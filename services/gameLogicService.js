@@ -147,6 +147,24 @@ const calculateMatchOutcome = async (matchId) => {
         match.round++;
         await match.save();
         console.log("Round3:", match.round);
+
+        // Update the Wager status
+        const wager = await Wager.findOne({ matchId });
+        if (wager) {
+            wager.status = 'pending';
+            wager.round = match.round;
+            
+            // Update player statuses
+            for (const player of match.players) {
+                if (wager.playerStats.has(player)) {
+                    const playerStats = wager.playerStats.get(player);
+                    playerStats.status = 'pending';
+                    wager.playerStats.set(player, playerStats);
+                }
+            }
+
+            await wager.save();
+        }
     } catch (error) {
         console.error('Error calculating match outcome:', error);
         throw error;
