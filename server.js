@@ -33,29 +33,43 @@ app.use('/leaderboard', leaderboardRoutes);
 app.use('/mana', manaRoutes);
 app.use('/wager', wageringRoutes);
 app.use('/admin', adminRoutes);
-app.use('/purchase' , purchaseRoutes);
+app.use('/purchase', purchaseRoutes);
 app.use('/log', logRoutes);
 app.use('/api/auth', emailAuthRoutes);
 app.use('/affiliate', affiliateRoutes);
 app.use('/purchase', purchaseRoutes);
-app.use('/users', userRoutes); // Use user routes
+app.use('/users', userRoutes);
 
-connectDB();
-startBot(BOT_ACCOUNT_1);
-startBot(BOT_ACCOUNT_2);
+const startServer = async () => {
+    try {
+        await connectDB();
 
-app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
-    startStreamingFrom(process.env.START_BLOCK);
-    setInterval(async () => {
-        const { matchPlayersByRank } = require('./services/matchmakingService');
-        await matchPlayersByRank();
-    }, 30000); // 30 seconds interval
+        app.listen(port, () => {
+            console.log(`Server running on http://localhost:${port}`);
+            startStreamingFrom(process.env.START_BLOCK);
+            startBot(BOT_ACCOUNT_1);
+            startBot(BOT_ACCOUNT_2);
 
-    // Schedule daily mana update at midnight
-    cron.schedule('0 0 * * *', async () => {
-        console.log('Running daily mana update');
-        await updateMana();
-        console.log('Daily mana update completed');
-    });
-});
+            setInterval(async () => {
+                const { matchPlayersByRank } = require('./services/matchmakingService');
+                await matchPlayersByRank();
+            }, 30000); // 30 seconds interval
+
+            // Schedule daily mana update at midnight
+            cron.schedule('0 0 * * *', async () => {
+                console.log('Running daily mana update');
+                try {
+                    await updateMana();
+                    console.log('Daily mana update completed');
+                } catch (error) {
+                    console.error('Error during daily mana update:', error);
+                }
+            });
+        });
+    } catch (error) {
+        console.error('Failed to start the server:', error);
+        process.exit(1);
+    }
+};
+
+startServer();
