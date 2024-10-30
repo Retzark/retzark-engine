@@ -17,17 +17,45 @@ const verifySignature = async (username, signature, data) => {
     return client.broadcast.verify({ account: username, sign: signature, data }, publicKey);
 };
 
+const checkBetTimeLimit = async (wager, username) => {
+    const currentTime = new Date();
+    const timeDiff = (currentTime - wager.lastBetTime) / 1000; // Convert to seconds
+
+    if (timeDiff > wager.betTimeLimit) {
+        // Determine the other player (who wins by forfeit)
+        const winner = username === wager.player1 ? wager.player2 : wager.player1;
+        
+        // Update match status
+        const match = await Match.findOne({ matchId: wager.matchId });
+        if (match) {
+            match.status = 'completed';
+            match.winner = winner;
+            await match.save();
+        }
+
+        // Update wager status
+        wager.status = 'forfeited';
+        wager.winner = winner;
+        await wager.save();
+
+        return { timedOut: true, winner };
+    }
+
+    return { timedOut: false };
+};
 
 const Check = async (username, matchId) => {
-    // const isValid = await verifySignature(playerId, signature, { matchId, wagerAmount });
-    // if (!isValid) return { success: false, message: 'Invalid signature' };
-
-    // Get Match round
     const match = await Match.findOne({ matchId });
-    if (!match) return false;
+    if (!match) return { success: false, message: 'Match not found' };
 
     const wager = await Wager.findOne({ matchId });
-    console.log(wager.playerStats);
+    if (!wager) return { success: false, message: 'Wager not found' };
+
+    // Check time limit
+    const timeCheck = await checkBetTimeLimit(wager, username);
+    if (timeCheck.timedOut) {
+        return { success: false, message: `Bet time limit exceeded. ${timeCheck.winner} wins by forfeit.` };
+    }
 
     // Ensure wager.playerStats is a Map
     if (!(wager.playerStats instanceof Map)) {
@@ -47,6 +75,10 @@ const Check = async (username, matchId) => {
     wager.playerStats.set(username, playerStats);
     const round = match.round;
     wager.round = round;
+    
+    // Update last bet time
+    wager.lastBetTime = new Date();
+    
     // Save the updated wager
     await wager.save();
 
@@ -54,11 +86,18 @@ const Check = async (username, matchId) => {
 };
 
 const Bet = async (username, matchId, wagerAmount, signature) => {
-    // const isValid = await verifySignature(playerId, signature, { matchId, wagerAmount });
-    // if (!isValid) return { success: false, message: 'Invalid signature' };
-    console.log("Match ID: ", matchId);
     const match = await Match.findOne({ matchId });
     if (!match) return { success: false, message: 'Match not found' };
+
+    const wager = await Wager.findOne({ matchId });
+    if (!wager) return { success: false, message: 'Wager not found' };
+
+    // Check time limit
+    const timeCheck = await checkBetTimeLimit(wager, username);
+    if (timeCheck.timedOut) {
+        return { success: false, message: `Bet time limit exceeded. ${timeCheck.winner} wins by forfeit.` };
+    }
+
     const round = match.round;
     const betTransaction = await BetTransaction.create({
         matchId: matchId,
@@ -68,9 +107,6 @@ const Bet = async (username, matchId, wagerAmount, signature) => {
         signature: signature,
         type: 'bet'
     });
-
-    const wager = await Wager.findOne({ matchId });
-    console.log(wager.playerStats);
 
     // Ensure wager.playerStats is a Map
     if (!(wager.playerStats instanceof Map)) {
@@ -89,6 +125,10 @@ const Bet = async (username, matchId, wagerAmount, signature) => {
     playerStats.status = 'bet';
     wager.playerStats.set(username, playerStats);
     wager.round = round;
+    
+    // Update last bet time
+    wager.lastBetTime = new Date();
+    
     // betTransactions with status 'pending'
     wager.betTransactions.push({
         transactionId: betTransaction._id,
@@ -97,7 +137,7 @@ const Bet = async (username, matchId, wagerAmount, signature) => {
         betType: 'bet',
         round: round
     });
-    // Save the updated wager
+    
     await wager.save();
     return { success: true, message: 'Wager placed successfully' };
 };
@@ -105,6 +145,12 @@ const Bet = async (username, matchId, wagerAmount, signature) => {
 const Call = async (matchId, username, signature, betId) => {
     const wager = await Wager.findOne({ matchId });
     if (!wager) return { success: false, message: 'Wager not found' };
+
+    // Check time limit
+    const timeCheck = await checkBetTimeLimit(wager, username);
+    if (timeCheck.timedOut) {
+        return { success: false, message: `Bet time limit exceeded. ${timeCheck.winner} wins by forfeit.` };
+    }
 
     // Find and update the BetTransaction
     const betTransaction = await BetTransaction.findById(betId);
@@ -116,7 +162,6 @@ const Call = async (matchId, username, signature, betId) => {
 
     // Find and update the corresponding transaction in wager.betTransactions
     const transaction = wager.betTransactions.find(t => t.transactionId === betId);
-    console.log(transaction)
     if (!transaction) return { success: false, message: 'Transaction not found in wager' };
 
     transaction.status = 'called';
@@ -135,22 +180,33 @@ const Call = async (matchId, username, signature, betId) => {
             wager.playerStats.set(username, playerStats);
         }
     }
+
     const match = await Match.findOne({ matchId });
     if (!match) return { success: false, message: 'Match not found' };
     const round = match.round;
     wager.round = round;
+    
+    // Update last bet time
+    wager.lastBetTime = new Date();
+    
     await wager.save();
-    console.log(wager)
     return { success: true, message: 'Bet Called' };
 };
 
 const Raise = async (matchId, username, signature, betId, raiseAmount) => {
-    console.log("Bet ID: ", betId);
     const match = await Match.findOne({ matchId });
     if (!match) return { success: false, message: 'Match not found' };
-    const round = match.round;
+
     const wager = await Wager.findOne({ matchId });
     if (!wager) return { success: false, message: 'Wager not found' };
+
+    // Check time limit
+    const timeCheck = await checkBetTimeLimit(wager, username);
+    if (timeCheck.timedOut) {
+        return { success: false, message: `Bet time limit exceeded. ${timeCheck.winner} wins by forfeit.` };
+    }
+
+    const round = match.round;
 
     // Find and update the BetTransaction
     const betTransaction = await BetTransaction.findById(betId);
@@ -164,7 +220,7 @@ const Raise = async (matchId, username, signature, betId, raiseAmount) => {
     if (!transaction) return { success: false, message: 'Transaction not found in wager' };
 
     transaction.status = 'raised';
-    console.log("Raise Amount: ", raiseAmount);
+
     // Create a new BetTransaction with the raised amount
     const raisedBetTransaction = await BetTransaction.create({
         matchId: matchId,
@@ -175,7 +231,7 @@ const Raise = async (matchId, username, signature, betId, raiseAmount) => {
         status: 'pending',
         type: 'raise'
     });
-    console.log("Raised Bet Transaction: ", raisedBetTransaction);
+
     // Add the new BetTransaction to wager.betTransactions
     wager.betTransactions.push({
         transactionId: raisedBetTransaction._id,
@@ -184,6 +240,10 @@ const Raise = async (matchId, username, signature, betId, raiseAmount) => {
         betType: 'raise'
     });
     wager.status = 'raised';
+    
+    // Update last bet time
+    wager.lastBetTime = new Date();
+    
     // Save the updated wager
     wager.player1Wager = wager.player1Wager + betTransaction.amount;
     wager.player2Wager = wager.player2Wager + betTransaction.amount;
@@ -206,6 +266,12 @@ const Raise = async (matchId, username, signature, betId, raiseAmount) => {
 const Fold = async (matchId, username, signature, betId) => {
     const wager = await Wager.findOne({ matchId });
     if (!wager) return { success: false, message: 'Wager not found' };
+
+    // Check time limit
+    const timeCheck = await checkBetTimeLimit(wager, username);
+    if (timeCheck.timedOut) {
+        return { success: false, message: `Bet time limit exceeded. ${timeCheck.winner} wins by forfeit.` };
+    }
 
     // Find and update the BetTransaction
     const betTransaction = await BetTransaction.findById(betId);
@@ -234,6 +300,10 @@ const Fold = async (matchId, username, signature, betId) => {
     const match = await Match.findOne({ matchId });
     const round = match.round;
     wager.round = round;
+    
+    // Update last bet time
+    wager.lastBetTime = new Date();
+    
     await wager.save();
     match.status = 'completed';
     const players = match.players;
@@ -249,6 +319,7 @@ const generateComplianceReport = async (startDate, endDate) => {
     });
     return wagers;
 };
+
 const getMatchWagerDetails = async (matchId) => {
     const wager = await Wager.findOne({matchId});
     return wager;
