@@ -131,7 +131,7 @@ const Bet = async (username, matchId, wagerAmount, signature) => {
     
     // betTransactions with status 'pending'
     wager.betTransactions.push({
-        transactionId: betTransaction._id,
+        transactionId: betTransaction._id.toString(),
         status: "pending",
         amount: wagerAmount,
         betType: 'bet',
@@ -156,13 +156,16 @@ const Call = async (matchId, username, signature, betId) => {
     const betTransaction = await BetTransaction.findById(betId);
     if (!betTransaction) return { success: false, message: 'BetTransaction not found' };
 
+    // Verify this is a valid bet to call
+    const transaction = wager.betTransactions.find(t => t.transactionId === betId.toString());
+    if (!transaction) return { success: false, message: 'Transaction not found in wager' };
+    if (transaction.status !== 'pending') return { success: false, message: 'Transaction cannot be called' };
+    if (betTransaction.player === username) return { success: false, message: 'Cannot call your own bet' };
+
     betTransaction.responder = username;
+    betTransaction.responderSignature = signature;
     betTransaction.status = 'called';
     await betTransaction.save();
-
-    // Find and update the corresponding transaction in wager.betTransactions
-    const transaction = wager.betTransactions.find(t => t.transactionId === betId);
-    if (!transaction) return { success: false, message: 'Transaction not found in wager' };
 
     transaction.status = 'called';
     transaction.amount = betTransaction.amount;
@@ -212,12 +215,14 @@ const Raise = async (matchId, username, signature, betId, raiseAmount) => {
     const betTransaction = await BetTransaction.findById(betId);
     if (!betTransaction) return { success: false, message: 'BetTransaction not found' };
 
+    // Verify this is a valid bet to raise
+    const transaction = wager.betTransactions.find(t => t.transactionId === betId.toString());
+    if (!transaction) return { success: false, message: 'Transaction not found in wager' };
+    if (transaction.status !== 'pending') return { success: false, message: 'Transaction cannot be raised' };
+    if (betTransaction.player === username) return { success: false, message: 'Cannot raise your own bet' };
+
     betTransaction.status = 'raised';
     await betTransaction.save();
-
-    // Find and update the corresponding transaction in wager.betTransactions
-    const transaction = wager.betTransactions.find(t => t.transactionId === betId);
-    if (!transaction) return { success: false, message: 'Transaction not found in wager' };
 
     transaction.status = 'raised';
 
@@ -234,7 +239,7 @@ const Raise = async (matchId, username, signature, betId, raiseAmount) => {
 
     // Add the new BetTransaction to wager.betTransactions
     wager.betTransactions.push({
-        transactionId: raisedBetTransaction._id,
+        transactionId: raisedBetTransaction._id.toString(),
         status: raisedBetTransaction.status,
         amount: raiseAmount,
         betType: 'raise'
@@ -277,13 +282,16 @@ const Fold = async (matchId, username, signature, betId) => {
     const betTransaction = await BetTransaction.findById(betId);
     if (!betTransaction) return { success: false, message: 'BetTransaction not found' };
 
+    // Verify this is a valid bet to fold
+    const transaction = wager.betTransactions.find(t => t.transactionId === betId.toString());
+    if (!transaction) return { success: false, message: 'Transaction not found in wager' };
+    if (transaction.status !== 'pending') return { success: false, message: 'Transaction cannot be folded' };
+    if (betTransaction.player === username) return { success: false, message: 'Cannot fold your own bet' };
+
     betTransaction.responder = username;
+    betTransaction.responderSignature = signature;
     betTransaction.status = 'folded';
     await betTransaction.save();
-
-    // Find and update the corresponding transaction in wager.betTransactions
-    const transaction = wager.betTransactions.find(t => t.transactionId === betId);
-    if (!transaction) return { success: false, message: 'Transaction not found in wager' };
 
     transaction.status = 'folded';
     wager.status = 'folded';
@@ -307,7 +315,7 @@ const Fold = async (matchId, username, signature, betId) => {
     await wager.save();
     match.status = 'completed';
     const players = match.players;
-    const winner = players.find(player => player !== betTransaction.player);
+    const winner = players.find(player => player !== username);
     match.winner = winner;
     await match.save();
     return { success: true, message: 'Bet Folded' };
