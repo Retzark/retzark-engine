@@ -314,9 +314,7 @@ const Fold = async (matchId, username, signature, betId) => {
     
     await wager.save();
     match.status = 'completed';
-    const players = match.players;
-    const winner = players.find(player => player !== username);
-    match.winner = winner;
+    match.winner = wager.winner;
     await match.save();
     return { success: true, message: 'Bet Folded' };
 };
