@@ -3,6 +3,7 @@
  * Provides functionalities related to mana balance.
  */
 
+const mongoose = require('mongoose');
 const Player = require('../models/Player');
 
 const rankMaxManaMap = {
@@ -50,21 +51,45 @@ const getMaxBetForRank = (rank) => {
 
 const determineBuyIn = (rank) => {
     console.log('Determining buy-in for rank:', rank, 'buy-in:', rankBuyInMap[rank] || 0);
-    return rankBuyInMap[rank] || 0; // Return the buy-in for the given rank, or 0 if the rank is not found
+    return rankBuyInMap[rank] || 0;
 };
 
 const deductMana = async (username, amount) => {
-    const player = await Player.findOne({ username });
-    if (player.currentManaBalance < amount) {
+    // Use findOneAndUpdate with atomic operations
+    const updatedPlayer = await Player.findOneAndUpdate(
+        { 
+            username,
+            currentManaBalance: { $gte: amount } // Ensure sufficient balance
+        },
+        {
+            $inc: { currentManaBalance: -amount },
+            $push: {
+                manaHistory: {
+                    change: -amount,
+                    reason: 'Match wager',
+                    timestamp: new Date()
+                }
+            }
+        },
+        { 
+            new: true,
+            runValidators: true,
+            useFindAndModify: false // Address deprecation warning
+        }
+    );
+
+    if (!updatedPlayer) {
         throw new Error('Insufficient mana');
     }
-    player.currentManaBalance -= amount;
-    player.manaHistory.push({
-        change: -amount,
-        reason: 'Match wager'
-    });
-    await player.save();
-    console.log(`Deducted ${amount} mana from player ${username} (new balance: ${player.currentManaBalance})`);
+
+    console.log(`Deducted ${amount} mana from player ${username} (new balance: ${updatedPlayer.currentManaBalance})`);
+    return updatedPlayer;
 };
 
-module.exports = { determineMaxMana, getManaBalance, determineBuyIn, deductMana };
+module.exports = { 
+    determineMaxMana, 
+    getManaBalance, 
+    determineBuyIn, 
+    deductMana,
+    getMaxBetForRank 
+};

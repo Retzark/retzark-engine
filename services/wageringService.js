@@ -20,6 +20,7 @@ const verifySignature = async (username, signature, data) => {
 const checkBetTimeLimit = async (wager, username) => {
     const currentTime = new Date();
     const timeDiff = (currentTime - wager.lastBetTime) / 1000; // Convert to seconds
+    const timeRemaining = wager.betTimeLimit - timeDiff;
 
     if (timeDiff > wager.betTimeLimit) {
         // Determine the other player (who wins by forfeit)
@@ -36,12 +37,16 @@ const checkBetTimeLimit = async (wager, username) => {
         // Update wager status
         wager.status = 'forfeited';
         wager.winner = winner;
+        wager.expired = true;
         await wager.save();
 
-        return { timedOut: true, winner };
+        return { timedOut: true, winner, timeRemaining: 0, expired: true };
     }
 
-    return { timedOut: false };
+    wager.expired = false;
+    await wager.save();
+
+    return { timedOut: false, timeRemaining, expired: false };
 };
 
 const Check = async (username, matchId) => {
@@ -320,15 +325,46 @@ const Fold = async (matchId, username, signature, betId) => {
 };
 
 const generateComplianceReport = async (startDate, endDate) => {
-    const wagers = await Wager.find({
-        createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) }
-    });
-    return wagers;
+    try {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        
+        // Check if dates are valid
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            return [];
+        }
+
+        const wagers = await Wager.find({
+            createdAt: { $gte: start, $lte: end }
+        });
+        return wagers;
+    } catch (error) {
+        console.error('Error generating compliance report:', error);
+        return [];
+    }
 };
 
 const getMatchWagerDetails = async (matchId) => {
     const wager = await Wager.findOne({matchId});
-    return wager;
+    if (wager) {
+        const currentTime = new Date();
+        const timeDiff = (currentTime - wager.lastBetTime) / 1000;
+        const timeRemaining = wager.betTimeLimit - timeDiff;
+        const isExpired = timeDiff > wager.betTimeLimit;
+
+        // If expired, update the wager
+        if (isExpired && !wager.expired) {
+            wager.expired = true;
+            await wager.save();
+        }
+
+        return {
+            ...wager.toObject(),
+            expired: isExpired,
+            timeRemaining
+        };
+    }
+    return null;
 }
 
 module.exports = { Check, Bet, Call, Fold, Raise, generateComplianceReport, getMatchWagerDetails };

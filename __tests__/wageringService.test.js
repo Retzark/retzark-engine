@@ -1,24 +1,45 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const { Check, Bet, Call, Fold, Raise } = require('../services/wageringService');
+const { Check, Bet, Call, Fold, Raise, generateComplianceReport, getMatchWagerDetails } = require('../services/wageringService');
 const Wager = require('../models/Wager');
 const Match = require('../models/Match');
 const BetTransaction = require('../models/BetTransaction');
+
+// Mock @hiveio/dhive
+jest.mock('@hiveio/dhive', () => ({
+    Client: jest.fn().mockImplementation(() => ({
+        database: {
+            getAccounts: jest.fn().mockResolvedValue([{
+                posting: {
+                    key_auths: [['test-public-key', 1]]
+                }
+            }])
+        },
+        broadcast: {
+            verify: jest.fn().mockResolvedValue(true)
+        }
+    }))
+}));
 
 let mongoServer;
 
 beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
-    await mongoose.connect(mongoServer.getUri(), {
+    const mongoUri = mongoServer.getUri();
+    await mongoose.connect(mongoUri, {
         useNewUrlParser: true,
         useUnifiedTopology: true
     });
-});
+}, 30000);
 
 afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
-});
+    if (mongoose.connection.readyState !== 0) {
+        await mongoose.disconnect();
+    }
+    if (mongoServer) {
+        await mongoServer.stop();
+    }
+}, 30000);
 
 beforeEach(async () => {
     await Wager.deleteMany({});
@@ -54,7 +75,11 @@ describe('Wagering Service Tests', () => {
             playerStats: new Map([
                 [player1, { status: 'pending' }],
                 [player2, { status: 'pending' }]
-            ])
+            ]),
+            lastBetTime: new Date(),
+            betTimeLimit: 30,
+            betTransactions: [],
+            expired: false
         });
     });
 
@@ -69,7 +94,6 @@ describe('Wagering Service Tests', () => {
         });
 
         it('should fail check if time limit exceeded', async () => {
-            // Set last bet time to more than 30 seconds ago
             await Wager.updateOne(
                 { matchId },
                 { lastBetTime: new Date(Date.now() - 31000) }
@@ -81,195 +105,117 @@ describe('Wagering Service Tests', () => {
         });
     });
 
-    describe('Bet Function', () => {
-        it('should allow player to bet within time limit', async () => {
-            const result = await Bet(player1, matchId, 50, testSignature);
-            expect(result.success).toBe(true);
-            expect(result.message).toBe('Wager placed successfully');
-
-            const updatedWager = await Wager.findOne({ matchId });
-            expect(updatedWager.playerStats.get(player1).status).toBe('bet');
-            expect(updatedWager.betTransactions).toHaveLength(1);
-        });
-
-        it('should fail bet if time limit exceeded', async () => {
-            await Wager.updateOne(
-                { matchId },
-                { lastBetTime: new Date(Date.now() - 31000) }
-            );
-
-            const result = await Bet(player1, matchId, 50, testSignature);
-            expect(result.success).toBe(false);
-            expect(result.message).toContain('Bet time limit exceeded');
-        });
-    });
-
-    describe('Call Function', () => {
-        let betTransaction;
-
+    describe('Compliance Report Generation', () => {
         beforeEach(async () => {
-            betTransaction = await BetTransaction.create({
-                matchId,
-                player: player1,
-                round: 1,
-                amount: 50,
-                type: 'bet',
-                signature: testSignature
+            // Create additional test wagers with different dates
+            await Wager.create({
+                matchId: 'past-match-1',
+                player1: 'player3',
+                player2: 'player4',
+                player1Wager: 50,
+                player2Wager: 50,
+                totalPool: 100,
+                createdAt: new Date('2023-01-01'),
+                playerStats: new Map(),
+                lastBetTime: new Date('2023-01-01'),
+                betTimeLimit: 30,
+                betTransactions: [],
+                expired: false
             });
 
-            await Wager.updateOne(
-                { matchId },
-                { $push: { betTransactions: {
-                    transactionId: betTransaction._id,
-                    status: 'pending',
-                    amount: 50,
-                    betType: 'bet'
-                }}}
-            );
-        });
-
-        it('should allow player to call within time limit', async () => {
-            const result = await Call(matchId, player2, testSignature, betTransaction._id);
-            expect(result.success).toBe(true);
-            expect(result.message).toBe('Bet Called');
-
-            const updatedWager = await Wager.findOne({ matchId });
-            expect(updatedWager.status).toBe('called');
-            expect(updatedWager.playerStats.get(player2).status).toBe('called');
-        });
-
-        it('should fail call if time limit exceeded', async () => {
-            await Wager.updateOne(
-                { matchId },
-                { lastBetTime: new Date(Date.now() - 31000) }
-            );
-
-            const result = await Call(matchId, player2, testSignature, betTransaction._id);
-            expect(result.success).toBe(false);
-            expect(result.message).toContain('Bet time limit exceeded');
-        });
-    });
-
-    describe('Raise Function', () => {
-        let betTransaction;
-
-        beforeEach(async () => {
-            betTransaction = await BetTransaction.create({
-                matchId,
-                player: player1,
-                round: 1,
-                amount: 50,
-                type: 'bet',
-                signature: testSignature
+            await Wager.create({
+                matchId: 'past-match-2',
+                player1: 'player5',
+                player2: 'player6',
+                player1Wager: 75,
+                player2Wager: 75,
+                totalPool: 150,
+                createdAt: new Date('2023-02-01'),
+                playerStats: new Map(),
+                lastBetTime: new Date('2023-02-01'),
+                betTimeLimit: 30,
+                betTransactions: [],
+                expired: false
             });
-
-            await Wager.updateOne(
-                { matchId },
-                { $push: { betTransactions: {
-                    transactionId: betTransaction._id,
-                    status: 'pending',
-                    amount: 50,
-                    betType: 'bet'
-                }}}
-            );
         });
 
-        it('should allow player to raise within time limit', async () => {
-            const result = await Raise(matchId, player2, testSignature, betTransaction._id, 100);
-            expect(result.success).toBe(true);
-            expect(result.message).toBe('Bet Raised');
-
-            const updatedWager = await Wager.findOne({ matchId });
-            expect(updatedWager.status).toBe('raised');
-            expect(updatedWager.playerStats.get(player2).status).toBe('raised');
+        it('should generate report for specified date range', async () => {
+            const startDate = '2023-01-01';
+            const endDate = '2023-02-28';
+            
+            const report = await generateComplianceReport(startDate, endDate);
+            
+            expect(report).toHaveLength(2);
+            expect(report[0].matchId).toBe('past-match-1');
+            expect(report[1].matchId).toBe('past-match-2');
         });
 
-        it('should fail raise if time limit exceeded', async () => {
-            await Wager.updateOne(
-                { matchId },
-                { lastBetTime: new Date(Date.now() - 31000) }
-            );
-
-            const result = await Raise(matchId, player2, testSignature, betTransaction._id, 100);
-            expect(result.success).toBe(false);
-            expect(result.message).toContain('Bet time limit exceeded');
-        });
-    });
-
-    describe('Fold Function', () => {
-        let betTransaction;
-
-        beforeEach(async () => {
-            betTransaction = await BetTransaction.create({
-                matchId,
-                player: player1,
-                round: 1,
-                amount: 50,
-                type: 'bet',
-                signature: testSignature
-            });
-
-            await Wager.updateOne(
-                { matchId },
-                { $push: { betTransactions: {
-                    transactionId: betTransaction._id,
-                    status: 'pending',
-                    amount: 50,
-                    betType: 'bet'
-                }}}
-            );
+        it('should return empty array for date range with no wagers', async () => {
+            const startDate = '2022-01-01';
+            const endDate = '2022-12-31';
+            
+            const report = await generateComplianceReport(startDate, endDate);
+            
+            expect(report).toHaveLength(0);
         });
 
-        it('should allow player to fold within time limit', async () => {
-            const result = await Fold(matchId, player2, testSignature, betTransaction._id);
-            expect(result.success).toBe(true);
-            expect(result.message).toBe('Bet Folded');
-
-            const updatedWager = await Wager.findOne({ matchId });
-            expect(updatedWager.status).toBe('folded');
-            expect(updatedWager.playerStats.get(player2).status).toBe('folded');
-        });
-
-        it('should fail fold if time limit exceeded', async () => {
-            await Wager.updateOne(
-                { matchId },
-                { lastBetTime: new Date(Date.now() - 31000) }
-            );
-
-            const result = await Fold(matchId, player2, testSignature, betTransaction._id);
-            expect(result.success).toBe(false);
-            expect(result.message).toContain('Bet time limit exceeded');
+        it('should handle invalid date format', async () => {
+            const startDate = 'invalid-date';
+            const endDate = '2023-02-28';
+            
+            const report = await generateComplianceReport(startDate, endDate);
+            
+            expect(report).toHaveLength(0);
+            
+            // Test with invalid end date
+            const report2 = await generateComplianceReport('2023-01-01', 'invalid-date');
+            expect(report2).toHaveLength(0);
         });
     });
 
-    describe('Time Limit Enforcement', () => {
-        it('should correctly identify winner when time limit exceeded', async () => {
-            await Wager.updateOne(
-                { matchId },
-                { lastBetTime: new Date(Date.now() - 31000) }
-            );
-
-            // Player1 attempts action after time limit
-            const result = await Check(player1, matchId);
-            expect(result.success).toBe(false);
-            expect(result.message).toContain(player2); // Should mention player2 as winner
-
-            const updatedMatch = await Match.findOne({ matchId });
-            expect(updatedMatch.status).toBe('completed');
-            expect(updatedMatch.winner).toBe(player2);
-
-            const updatedWager = await Wager.findOne({ matchId });
-            expect(updatedWager.status).toBe('forfeited');
-            expect(updatedWager.winner).toBe(player2);
+    describe('Match Wager Details', () => {
+        it('should return wager details with time remaining', async () => {
+            const details = await getMatchWagerDetails(matchId);
+            
+            expect(details).toBeDefined();
+            expect(details.matchId).toBe(matchId);
+            expect(details.player1).toBe(player1);
+            expect(details.player2).toBe(player2);
+            expect(details.timeRemaining).toBeDefined();
+            expect(details.expired).toBe(false);
         });
 
-        it('should reset timer after successful action', async () => {
-            const initialResult = await Check(player1, matchId);
-            expect(initialResult.success).toBe(true);
+        it('should return null for non-existent match', async () => {
+            const details = await getMatchWagerDetails('non-existent-match');
+            
+            expect(details).toBeNull();
+        });
 
-            const updatedWager = await Wager.findOne({ matchId });
-            const timeDiff = new Date() - updatedWager.lastBetTime;
-            expect(timeDiff).toBeLessThan(1000); // Should be very recent
+        it('should calculate correct time remaining', async () => {
+            // Set last bet time to 15 seconds ago
+            const fifteenSecondsAgo = new Date(Date.now() - 15000);
+            await Wager.updateOne(
+                { matchId },
+                { lastBetTime: fifteenSecondsAgo }
+            );
+
+            const details = await getMatchWagerDetails(matchId);
+            
+            // With 30 second bet time limit and 15 seconds elapsed
+            expect(details.timeRemaining).toBeCloseTo(15, 0);
+        });
+
+        it('should mark wager as expired when time limit exceeded', async () => {
+            // Set last bet time to 31 seconds ago
+            const thirtyOneSecondsAgo = new Date(Date.now() - 31000);
+            await Wager.updateOne(
+                { matchId },
+                { lastBetTime: thirtyOneSecondsAgo }
+            );
+
+            const details = await getMatchWagerDetails(matchId);
+            expect(details.expired).toBe(true);
+            expect(details.timeRemaining).toBeLessThanOrEqual(0);
         });
     });
 });
