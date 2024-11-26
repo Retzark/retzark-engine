@@ -110,8 +110,8 @@ const createMatchmakingTransaction = async (players) => {
         player1Wager: determineBuyIn(matchRank),
         player2Wager: determineBuyIn(matchRank),
         playerStats: {
-            [players[0]]: { status: 'pending', rounds: { 1: { completed: false } } },
-            [players[1]]: { status: 'pending', rounds: { 1: { completed: false } } }
+            [players[0]]: { status: 'pending' },
+            [players[1]]: { status: 'pending' }
         },
         totalPool: determineBuyIn(matchRank) * 2,
         status: 'pending',
