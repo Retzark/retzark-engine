@@ -359,7 +359,7 @@ const getMatchWagerDetails = async (matchId) => {
         }
 
         return {
-            ...wager.toObject(),
+            wager,
             expired: isExpired,
             timeRemaining
         };
