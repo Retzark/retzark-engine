@@ -81,7 +81,7 @@ const getComplianceReport = async (req, res) => {
 const getMatchWagerDetails = async (req, res) => {
     const matchId = req.params.matchId;
     const matchDetails = await wageringService.getMatchWagerDetails(matchId);
-    res.json(matchDetails);
+    res.json(matchDetails.wager);
 };
 
 module.exports = { Check, Bet, Call, Raise, Fold, getComplianceReport, getMatchWagerDetails };
