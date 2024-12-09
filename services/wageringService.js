@@ -25,7 +25,7 @@ const checkBetTimeLimit = async (wager, username) => {
     if (timeDiff > wager.betTimeLimit) {
         // Determine the other player (who wins by forfeit)
         const winner = username === wager.player1 ? wager.player2 : wager.player1;
-        
+
         // Update match status
         const match = await Match.findOne({ matchId: wager.matchId });
         if (match) {
@@ -80,10 +80,10 @@ const Check = async (username, matchId) => {
     wager.playerStats.set(username, playerStats);
     const round = match.round;
     wager.round = round;
-    
+
     // Update last bet time
     wager.lastBetTime = new Date();
-    
+
     // Save the updated wager
     await wager.save();
 
@@ -130,10 +130,10 @@ const Bet = async (username, matchId, wagerAmount, signature) => {
     playerStats.status = 'bet';
     wager.playerStats.set(username, playerStats);
     wager.round = round;
-    
+
     // Update last bet time
     wager.lastBetTime = new Date();
-    
+
     // betTransactions with status 'pending'
     wager.betTransactions.push({
         transactionId: betTransaction._id.toString(),
@@ -142,7 +142,7 @@ const Bet = async (username, matchId, wagerAmount, signature) => {
         betType: 'bet',
         round: round
     });
-    
+
     await wager.save();
     return { success: true, message: 'Wager placed successfully' };
 };
@@ -193,10 +193,10 @@ const Call = async (matchId, username, signature, betId) => {
     if (!match) return { success: false, message: 'Match not found' };
     const round = match.round;
     wager.round = round;
-    
+
     // Update last bet time
     wager.lastBetTime = new Date();
-    
+
     await wager.save();
     return { success: true, message: 'Bet Called' };
 };
@@ -250,10 +250,10 @@ const Raise = async (matchId, username, signature, betId, raiseAmount) => {
         betType: 'raise'
     });
     wager.status = 'raised';
-    
+
     // Update last bet time
     wager.lastBetTime = new Date();
-    
+
     // Save the updated wager
     wager.player1Wager = wager.player1Wager + betTransaction.amount;
     wager.player2Wager = wager.player2Wager + betTransaction.amount;
@@ -266,6 +266,12 @@ const Raise = async (matchId, username, signature, betId, raiseAmount) => {
             playerStats.status = 'raised';
             wager.playerStats.set(username, playerStats);
         }
+    }
+    const otherPlayer = username === wager.player1 ? wager.player2 : wager.player1;
+    const otherPlayerStats = wager.playerStats.get(otherPlayer);
+    if (otherPlayerStats) {
+        otherPlayerStats.status = 'none';
+        wager.playerStats.set(otherPlayer, otherPlayerStats);
     }
     wager.round = round;
     await wager.save();
@@ -313,10 +319,10 @@ const Fold = async (matchId, username, signature, betId) => {
     const match = await Match.findOne({ matchId });
     const round = match.round;
     wager.round = round;
-    
+
     // Update last bet time
     wager.lastBetTime = new Date();
-    
+
     await wager.save();
     match.status = 'completed';
     match.winner = wager.winner;
@@ -328,7 +334,7 @@ const generateComplianceReport = async (startDate, endDate) => {
     try {
         const start = new Date(startDate);
         const end = new Date(endDate);
-        
+
         // Check if dates are valid
         if (isNaN(start.getTime()) || isNaN(end.getTime())) {
             return [];

@@ -27,7 +27,7 @@ const wagerSchema = new mongoose.Schema({
     status: { type: String, default: 'pending' },
     round: {type: Number, default: 1 },
     lastBetTime: { type: Date, default: Date.now },
-    betTimeLimit: { type: Number, default: 30 }, // Time limit in seconds
+    betTimeLimit: { type: Number, default: 300 }, // Time limit in seconds
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });
