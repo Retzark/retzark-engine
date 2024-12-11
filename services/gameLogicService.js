@@ -8,10 +8,12 @@ const Player = require('../models/Player');
 const RetReward = require('../models/RetReward');
 const Wager = require('../models/Wager');
 const { activeMatches } = require("../services/matchmakingService");
-const { determineCardOrder, simulateRound, calculateDamage, applyDamage, updateGameState, checkWinConditions } = require('./gameLogicHelpers');
+const { simulateRound, checkWinConditions } = require('./gameLogicHelpers');
+const { resolveMatch } = require('./matchResolutionService');
 
 const calculateMatchOutcome = async (matchId) => {
     try {
+        console.log("calculateMatchOutcome");
         // Get match details from database
         const match = await Match.findOne({ matchId });
         if (!match) throw new Error('Match not found');
@@ -35,24 +37,22 @@ const calculateMatchOutcome = async (matchId) => {
             }
         }
 
-        const cards = match.cardsPlayed[match.round];
-        let cardDetails = {};
+        // Get card IDs from current round
+        const cardIds = [];
+        Object.values(match.cardsPlayed[match.round]).forEach(playerCards => {
+            cardIds.push(...playerCards);
+        });
 
         // Fetch card details from database
-        for (const player in cards) {
-            const cardIds = cards[player];
-            const fetchedCards = await Card.find({ id: { $in: cardIds } });
+        const cards = await Card.find({ id: { $in: cardIds } });
+        const cardMap = new Map(cards.map(card => [card.id, card]));
 
-            // Create a map for easy lookup by card id
-            const cardMap = {};
-            fetchedCards.forEach(card => {
-                cardMap[card.id] = card;
-            });
-
-            // Ensure the order of cardDetails matches the order in cards
-            cardDetails[player] = cardIds.map(cardId => cardMap[cardId]);
+        // Format cards for simulation
+        const formattedCards = {};
+        for (const [player, playerCards] of Object.entries(match.cardsPlayed[match.round])) {
+            formattedCards[player] = playerCards.map(cardId => cardMap.get(cardId));
         }
-
+        console.log("Formatted Cards: ", formattedCards);
         // Update card details with health from previous round
         if (match.round > 1) {
             const previousRound = match.round - 1;
@@ -62,22 +62,25 @@ const calculateMatchOutcome = async (matchId) => {
                 for (let i = 0; i < previousCards.length; i++) {
                     if (previousCards[i].id !== 999) {
                         const cardId = previousCards[i].id;
-                        cardDetails[player].forEach(c => {
-                            if (c.id === cardId){
-                                c.hp = previousCards[i].hp;
-                            }
-                        });
+                        if (formattedCards[player]) {
+                            formattedCards[player].forEach(c => {
+                                if (c.id === cardId) {
+                                    c.hp = previousCards[i].hp;
+                                }
+                            });
+                        }
                     }
                 }
             }
         }
 
         // Deduct energy for each card played by each player
-        for (const player in cardDetails) {
-            const playerCards = cardDetails[player];
+        for (const player in formattedCards) {
+            const playerCards = formattedCards[player];
             let totalEnergyCost = 0;
             playerCards.forEach(card => {
-                totalEnergyCost += card.egy; // Assuming each card has an energyCost property
+                console.log("Card: ", card);
+                totalEnergyCost += card.egy;
             });
             match.playerStats.get(player).energy -= totalEnergyCost;
             if (match.playerStats.get(player).energy < 0) {
@@ -86,7 +89,7 @@ const calculateMatchOutcome = async (matchId) => {
         }
 
         // Simulate the round
-        let winner = await simulateRound(cardDetails, match);
+        let winner = await simulateRound(formattedCards, match);
         console.log("Round1:", match.round);
         if (!winner && match.round === 7) {
             winner = await checkWinConditions(matchId, match.round);
@@ -99,6 +102,10 @@ const calculateMatchOutcome = async (matchId) => {
             console.log("Players: ", );
             delete activeMatches[winner.loser];
             delete activeMatches[winner.winner];
+
+            // Call resolveMatch to handle RET rewards and rank updates
+            await resolveMatch(matchId, winner.winner, winner.loser, true, match.totalManaPool);
+
             let winningPlayer = await Player.findOne({ username: winner.winner });
             let losingPlayer = await Player.findOne({ username: winner.loser });
 
@@ -110,18 +117,7 @@ const calculateMatchOutcome = async (matchId) => {
             }
             losingPlayer.manaBalance -= match.totalManaPool / 2;
             winningPlayer.manaBalance -= match.totalManaPool / 2;
-            let rank = winningPlayer.rank;
-            // Remove the space in the rank string
-            rank = rank.replace(/\s/g, '');
-            const retReward = await RetReward.findOne({ rewards: { $exists: true } });
-            //rewards: { type: Object, default: {} }
-            // Create and object to store the rewards with the Key RET and the value of the reward
-            let rewards = {};
-            console.log("Rank: ", rank);
-            console.log("Reward: ", retReward.rewards);
-            console.log("Rewards: ", retReward.rewards.get(rank));
-            rewards.RET = retReward.rewards.get(rank);
-            match.rewards = rewards;
+            
             await losingPlayer.save();
             await winningPlayer.save();
         }

@@ -1,4 +1,3 @@
-const Player = require('../models/Player');
 const Match = require('../models/Match');
 const winston = require('winston');
 
@@ -19,36 +18,8 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Constants
+const PLACEHOLDER_CARD = { id: 999, hp: 0, atk: 0, spd: 0, egy: 0 };
 const PLACEHOLDER_CARD_ID = 999;
-
-// Helper function to retrieve card data for a match
-const retrieveCardData = async (matchId, players) => {
-    try {
-        const match = await Match.findOne({ matchId });
-        if (!match) throw new Error('Match not found');
-
-        const cardData = {};
-        players.forEach(player => {
-            cardData[player] = match.cardsPlayed[player];
-        });
-
-        return cardData;
-    } catch (error) {
-        logger.error(`Error retrieving card data for match ${matchId}:`, error);
-        throw error;
-    }
-};
-
-// Helper function to determine the order of cards based on speed
-const determineCardOrder = (cardData, blockHash) => {
-    const orderedCards = {};
-    // Sort cards by speed
-    Object.keys(cardData).forEach(player => {
-        orderedCards[player] = cardData[player].sort((a, b) => b.spd - a.spd);
-    });
-
-    return orderedCards;
-};
 
 // Helper function to determine the target of an attack
 const determineTarget = (attacker, cards1, cards2, player1, player2) => {
@@ -61,31 +32,31 @@ const determineTarget = (attacker, cards1, cards2, player1, player2) => {
 // Helper function to handle placeholder cards (special cards with ID 999)
 const handlePlaceholderCards = (attacker, target) => {
     if (attacker.card.id === PLACEHOLDER_CARD_ID) {
-        return { skipTurn: true, newTarget: null }; // Skip the attacker's turn if it's a placeholder card
+        return { skipTurn: true, newTarget: PLACEHOLDER_CARD }; // Skip the attacker's turn if it's a placeholder card
     }
-    if (target && target.id === PLACEHOLDER_CARD_ID) {
-        return { skipTurn: false, newTarget: null }; // Attack the base if the target is a placeholder card
+    if (!target || target.id === PLACEHOLDER_CARD_ID) {
+        return { skipTurn: false, newTarget: PLACEHOLDER_CARD }; // Attack the base if the target is a placeholder card
     }
     return { skipTurn: false, newTarget: target }; // Continue with the attack if neither are placeholder cards
 };
 
 // Helper function to apply damage to a target card and update its health
-const applyDamageAndUpdateHealth = (attacker, target, targetPlayer, match, allCards, battleHistory) => {
-    const battle = { [targetPlayer]: { attack: attacker.card.atk, targetCard: target } };
-    const health = applyDamage(battle, match); // Apply damage to the target card
+const applyDamageAndUpdateHealth = async (attacker, target, targetPlayer, match, allCards, battleHistory) => {
+    const battle = {[targetPlayer]: {attack: attacker.card.atk, targetCard: target}};
+    const health = await applyDamage(battle, match); // Apply damage to the target card
     // Update the health of the target card in the list of all cards
-    allCards.forEach(c => {
+    await allCards.forEach(c => {
         if (c.player === targetPlayer && c.card.id === target.card.id) {
             c.card.hp = health; // Update the card's health
         }
     });
     // Remove the card if its health is zero or less
     if (health <= 0) {
-        allCards = allCards.filter(c => !(c.player === targetPlayer && c.card.id === target.card.id)); // Remove defeated card
+        allCards = await allCards.filter(c => !(c.player === targetPlayer && c.card.id === target.card.id)); // Remove defeated card
     }
 
     // Log the battle history
-    battleHistory.push({
+    await battleHistory.push({
         attacker: attacker.player,
         target: targetPlayer,
         attackCard: attacker.card,
@@ -99,7 +70,6 @@ const applyDamageAndUpdateHealth = (attacker, target, targetPlayer, match, allCa
 
 // Main function to simulate a round of the match
 const simulateRound = async (cards, match) => {
-    const roundOutcome = {}; // Initialize round outcome object
     const battleHistory = []; // Initialize battle history array
     const players = Object.keys(cards); // Get the list of players
     let winner = null; // Initialize winner variable
@@ -142,11 +112,12 @@ const simulateRound = async (cards, match) => {
         const { skipTurn, newTarget } = handlePlaceholderCards(attacker, target); // Handle placeholder cards
         if (skipTurn) continue; // Skip turn if necessary
 
-        if (newTarget.card.id === PLACEHOLDER_CARD_ID) {
+        if (newTarget.id === PLACEHOLDER_CARD_ID) {
             // If attacking base
             const baseHealth = match.playerStats.get(targetPlayer).baseHealth;
             const updatedBaseHealth = baseHealth - attacker.card.atk; // Calculate new base health
             match.playerStats.get(targetPlayer).baseHealth = updatedBaseHealth; // Update the in-memory object
+            console.log("updatedBaseHealth", updatedBaseHealth);
             await match.updateOne({ [`playerStats.${targetPlayer}.baseHealth`]: updatedBaseHealth }); // Update base health in the database
             // Log battle history for base attack
             battleHistory.push({
@@ -158,26 +129,23 @@ const simulateRound = async (cards, match) => {
                 damage: attacker.card.atk,
                 attackedBase: true
             });
-            winner = await checkWinConditionForBase(match.matchId, match.round);
-            if (winner) {
-                break;
-            }
         } else {
             // If attacking a card
-            allCards = applyDamageAndUpdateHealth(attacker, newTarget, targetPlayer, match, allCards, battleHistory); // Apply damage and update health
+            allCards = await applyDamageAndUpdateHealth(attacker, newTarget, targetPlayer, match, allCards, battleHistory); // Apply damage and update health
+        }
+        winner = await checkWinConditionForBase(match.matchId, match.round);
+        if (winner) {
+            break;
         }
     }
 
-    // Fetch base health from match stats for each player
-    const player1BaseHealth = match.playerStats.get(player1).baseHealth;
-    const player2BaseHealth = match.playerStats.get(player2).baseHealth;
-
     // Output the battle history at the end of the round
     // Initialize arrays to hold the card IDs for each player
-    const player1Cards = [{ id: 999, hp: 0, atk: 0, spd: 0 }, { id: 999, hp: 0, atk: 0, spd: 0 }, { id: 999, hp: 0, atk: 0, spd: 0 }]; // Default all positions to placeholder cards
-    const player2Cards = [{ id: 999, hp: 0, atk: 0, spd: 0 }, { id: 999, hp: 0, atk: 0, spd: 0 }, { id: 999, hp: 0, atk: 0, spd: 0 }]; // Default all positions to placeholder cards
+    const player1Cards = [PLACEHOLDER_CARD, PLACEHOLDER_CARD, PLACEHOLDER_CARD]; // Default all positions to placeholder cards
+    const player2Cards = [PLACEHOLDER_CARD, PLACEHOLDER_CARD, PLACEHOLDER_CARD]; // Default all positions to placeholder cards
 
     // Populate the arrays with the actual card IDs in their correct positions
+    console.log("allCards", allCards);
     allCards.forEach(card => {
         if (card.player === player1) {
             player1Cards[card.position] = { id: card.card.id, hp: card.card.hp, atk: card.card.atk, spd: card.card.spd };
@@ -188,10 +156,10 @@ const simulateRound = async (cards, match) => {
 
     // Store the battle history and remaining cards in the match document
     match.battleHistory.set(match.round.toString(), battleHistory);
-    match.remainingCards.set(match.round.toString(), {
+    match.remainingCards.set(match.round.toString(), [{
         [player1]: player1Cards,
         [player2]: player2Cards
-    });
+    }]);
     // Increment the round number
     await match.save();
     return winner;
@@ -211,17 +179,14 @@ const applyDamage = (battle, match) => {
         if (!match) throw new Error('Match not found'); // Throw an error if the match is not found
         const baseHealth = match.playerStats.get(player).baseHealth;
         const updatedBaseHealth = baseHealth - attack; // Calculate new base health
+        match.playerStats.get(player).baseHealth = updatedBaseHealth; // Update the in-memory object
+        console.log("updatedBaseHealth", updatedBaseHealth);
         match.updateOne({ [`playerStats.${player}.baseHealth`]: updatedBaseHealth }); // Update base health in the database
     } else {
         cardHealth -= attack; // Subtract attack from card's health
     }
 
     return cardHealth; // Return the updated card health
-};
-
-// Helper function to calculate damage dealt in each round (placeholder for future implementation)
-const calculateDamage = (roundOutcomes) => {
-    // Placeholder for implementation
 };
 
 // Helper function to update the game state after each round
@@ -307,10 +272,6 @@ const checkWinConditions = async (matchId, roundNumber) => {
 }
 
 module.exports = {
-    retrieveCardData,
-    determineCardOrder,
     simulateRound,
-    calculateDamage,
-    updateGameState,
     checkWinConditions
 };

@@ -46,7 +46,7 @@ const startServer = async () => {
 
         app.listen(port, () => {
             console.log(`Server running on http://localhost:${port}`);
-            startStreamingFrom(process.env.START_BLOCK);
+            //startStreamingFrom(process.env.START_BLOCK);
             //startBot(BOT_ACCOUNT_1);
             //startBot(BOT_ACCOUNT_2);
 

@@ -1,8 +1,9 @@
 const fs = require('fs');
 const mongoose = require('mongoose');
-const Match = require('../models/Match'); // Adjust the path as necessary
-const RetReward = require('../models/RetReward'); // Adjust the path as necessary
-require('dotenv').config({ path: '../.env' });
+const Match = require('../models/Match');
+const RetReward = require('../models/RetReward');
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 // Initial setup
 let initialTotalDailyPool = 1000000;
@@ -40,8 +41,19 @@ const ranks = Object.keys(rankWeights);
 mongoose.connect(process.env.DATABASE_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-}).then(() => console.log('MongoDB connected'))
-    .catch(err => console.error('MongoDB connection error:', err));
+}).then(() => {
+    console.log('MongoDB connected');
+    runCalculation().then(() => {
+        console.log('Calculation completed');
+        process.exit(0);
+    }).catch(err => {
+        console.error('Error during calculation:', err);
+        process.exit(1);
+    });
+}).catch(err => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+});
 
 // Function to get matches for the last week and calculate average matches per day
 const getAverageMatchesPerDay = async () => {

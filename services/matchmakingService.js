@@ -76,8 +76,6 @@ const createMatchmakingTransaction = async (players) => {
     const player1 = await Player.findOne({ username: players[0] });
     const player2 = await Player.findOne({ username: players[1] });
     let matchRank = player1.rank === player2.rank ? player1.rank : 'mixed';
-    // Remove the number from the matchRank rookie 1 -> rookie
-    matchRank = matchRank.replace(/[0-9]/g, '');
     // Remove the space in the rank
     matchRank = matchRank.replace(/\s/g, '');
     console.log(`Match rank: ${matchRank}`);

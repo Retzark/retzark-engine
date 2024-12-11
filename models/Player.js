@@ -6,6 +6,7 @@ const playerSchema = new mongoose.Schema({
     xp: { type: Number, default: 0 },
     maxManaBalance: { type: Number, default: 1000 },
     currentManaBalance: { type: Number, default: 1000 },
+    retBalance: { type: Number, default: 0 },
     matches: { type: [String], default: [] },
     wins: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },
@@ -13,6 +14,12 @@ const playerSchema = new mongoose.Schema({
     manaHistory: [{
         date: { type: Date, default: Date.now },
         change: Number,
+        reason: String
+    }],
+    retHistory: [{
+        date: { type: Date, default: Date.now },
+        change: Number,
+        matchId: String,
         reason: String
     }]
 });

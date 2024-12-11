@@ -6,8 +6,8 @@
 const Match = require('../models/Match');
 const Wager = require('../models/Wager');
 const Player = require('../models/Player');
-const { updateRank } = require('./rankUpdateService');
 const { calculateMatchOutcome } = require('./gameLogicService');
+const { resolveMatch } = require('./matchResolutionService');
 const {getTx} = require("./hiveService");
 const {activeMatches, matchCardSelections} = require("./matchmakingService");
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -16,6 +16,7 @@ const getMatchDetails = async (matchId) => {
     const match = await Match.findOne({ matchId });
     return match;
 };
+
 const revealCards = async (matchId, player, cards) => {
     const match = await Match.findOne({ matchId });
     if (!match) return { success: false, message: 'Match not found' };
@@ -31,34 +32,13 @@ const revealCards = async (matchId, player, cards) => {
         match.cardHashes[match.round] = {};
     }
     if (match.cardHashes[match.round][player] === cardHash) {
-        updateMatchDetailsCardsPlayed(matchId, player, cards);
+        await updateMatchDetailsCardsPlayed(matchId, player, cards);
         return { success: true, message: 'Cards revealed and verified' };
     }else {
         return { success: false, message: 'Card verification failed' };
     }
 };
-const resolveMatch = async (matchId, winnerId, loserId, isRanked, totalManaWagered) => {
-    try {
-        const match = await Match.findOne({ matchId });
-        if (!match) throw new Error('Match not found');
 
-        const update = {
-            $set: {
-                status: 'completed',
-                winner: winnerId
-            }
-        };
-        await Match.findOneAndUpdate({ matchId }, update, { new: true });
-
-        if (isRanked) {
-            await updateRank(winnerId, loserId, totalManaWagered);
-        }
-
-        return { success: true, message: 'Match resolved successfully' };
-    } catch (error) {
-        throw new Error(error.message);
-    }
-};
 const updateMatchDetailsCardsPlayed = async (matchId, player, cards) => {
     try {
         const match = await Match.findOne({ matchId });
@@ -77,10 +57,9 @@ const updateMatchDetailsCardsPlayed = async (matchId, player, cards) => {
         };
         const updatedMatch = await Match.findOneAndUpdate({ matchId }, update, { new: true });
         // Check if all players have played their cards for the current round
-
-        if (Object.keys(updatedMatch.cardsPlayed[updatedMatch.round]).length === updatedMatch.players.length) {
+        if (updatedMatch && updatedMatch.cardsPlayed[updatedMatch.round] && 
+            Object.keys(updatedMatch.cardsPlayed[updatedMatch.round]).length === updatedMatch.players.length) {
             // Calculate the outcome of the round
-
             const roundOutcome = calculateMatchOutcome(matchId);
             // Store the battle history and remaining cards in the match document
             await updatedMatch.save();
@@ -89,6 +68,7 @@ const updateMatchDetailsCardsPlayed = async (matchId, player, cards) => {
         console.error('Error updating match details cards played:', error);
     }
 };
+
 const updateManaWagered = async (matchId, player, manaAmount) => {
     try {
         const match = await Match.findOne({ matchId });
@@ -110,6 +90,7 @@ const updateManaWagered = async (matchId, player, manaAmount) => {
         return { success: false, message: error.message };
     }
 };
+
 const updateMatchDetailsHash = async (matchId, player, hash) => {
     try {
         const match = await Match.findOne({ matchId });
@@ -130,12 +111,12 @@ const updateMatchDetailsHash = async (matchId, player, hash) => {
             }
         };
         console.log("Updating Card Hash for round", match.round, "player", player, "hash", hash);
-        const updatedMatch = await Match.findOneAndUpdate({ matchId }, update, { new: true });
-        // Check if all players have submitted their card hashes for the current round
+        await Match.findOneAndUpdate({ matchId }, update, { new: true });
     } catch (error) {
         console.error('Error updating match details hash:', error);
     }
 };
+
 const surrenderMatch = async (matchId, player) => {
     try {
         const match = await Match.findOne({matchId});
@@ -150,7 +131,8 @@ const surrenderMatch = async (matchId, player) => {
         console.error('Error surrendering match:', error);
         return {success: false, message: error.message};
     }
-}
+};
+
 const submitCardsHash = async (txID) => {
     console.log("txID", txID);
     let i = 0;
@@ -170,41 +152,50 @@ const submitCardsHash = async (txID) => {
             if(i > 20){
                 return {success: true, message: 'Not able to find TX'};
             }
-            await sleep(3000)
-            i++
+            await sleep(3000);
+            i++;
         }
     } catch (error) {
         console.error('Error submitting card hash:', error);
         return {success: false, message: error.message};
     }
-}
+};
 
 const submitDeck = async (matchId, player, deckHash, cardHashes) => {
-    const match = await Match.findOne({ matchId });
-    if (!match) {
-        throw new Error('Match not found');
+    try {
+        const match = await Match.findOne({ matchId });
+        if (!match) {
+            throw new Error('Match not found');
+        }
+
+        if (!match.players.includes(player)) {
+            throw new Error('Player not in this match');
+        }
+
+        // Initialize decks if it doesn't exist
+        if (!match.decks) {
+            match.decks = {};
+        }
+
+        // Update the match with the submitted deck information
+        match.decks[player] = { deckHash, cardHashes };
+
+        // Check if both players have submitted their decks
+        const submittedPlayers = Object.keys(match.decks);
+        if (submittedPlayers.length === match.players.length) {
+            match.status = 'decks_submitted';
+        }
+
+        await match.save();
+
+        return {
+            success: true,
+            message: 'Deck submitted successfully',
+            status: match.status
+        };
+    } catch (error) {
+        throw error;
     }
-
-    if (!match.players.includes(player)) {
-        throw new Error('Player not in this match');
-    }
-
-    // Update the match with the submitted deck information
-    match.decks = match.decks || {};
-    match.decks[player] = { deckHash, cardHashes };
-
-    // Check if both players have submitted their decks
-    if (Object.keys(match.decks).length === 2) {
-        match.status = 'decks_submitted';
-    }
-
-    await match.save();
-
-    return {
-        success: true,
-        message: 'Deck submitted successfully',
-        status: match.status
-    };
 };
 
 const handleCardSelection = (data) => {
@@ -226,4 +217,13 @@ const handleCardSelection = (data) => {
     updateMatchDetailsHash(matchId, player, cardHash);
 };
 
-module.exports = { getMatchDetails, revealCards, resolveMatch, updateMatchDetailsHash, updateManaWagered, updateMatchDetailsCardsPlayed, surrenderMatch, submitCardsHash, submitDeck};
+module.exports = { 
+    getMatchDetails, 
+    revealCards, 
+    updateMatchDetailsHash, 
+    updateManaWagered, 
+    updateMatchDetailsCardsPlayed, 
+    surrenderMatch, 
+    submitCardsHash, 
+    submitDeck
+};
