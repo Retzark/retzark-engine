@@ -43,7 +43,7 @@ const updateMatchDetailsCardsPlayed = async (matchId, player, cards) => {
     try {
         const match = await Match.findOne({ matchId });
         if (!match) throw new Error('Match not found');
-        console.log("Updating Cards Played for round", match.round, "player", player, "cards", cards);
+        // console.log("Updating Cards Played for round", match.round, "player", player, "cards", cards);
         if (!match.cardsPlayed) {
             match.cardsPlayed = {};
         }

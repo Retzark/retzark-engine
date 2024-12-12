@@ -25,7 +25,7 @@ const getMatchDetails = async (req, res) => {
 const revealCards = async (req, res) => {
     const matchId = req.params.matchId;
     const { player, cards } = req.body;
-    console.log(`Revealing cards for player ${player} in match ${matchId}:`, cards);
+    //console.log(`Revealing cards for player ${player} in match ${matchId}:`, cards);
     const result = await matchService.revealCards(matchId, player, cards);
     res.json(result);
 };

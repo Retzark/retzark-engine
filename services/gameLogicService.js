@@ -52,7 +52,7 @@ const calculateMatchOutcome = async (matchId) => {
         for (const [player, playerCards] of Object.entries(match.cardsPlayed[match.round])) {
             formattedCards[player] = playerCards.map(cardId => cardMap.get(cardId));
         }
-        console.log("Formatted Cards: ", formattedCards);
+        // console.log("Formatted Cards: ", formattedCards);
         // Update card details with health from previous round
         if (match.round > 1) {
             const previousRound = match.round - 1;
@@ -79,7 +79,7 @@ const calculateMatchOutcome = async (matchId) => {
             const playerCards = formattedCards[player];
             let totalEnergyCost = 0;
             playerCards.forEach(card => {
-                console.log("Card: ", card);
+                //console.log("Card: ", card);
                 totalEnergyCost += card.egy;
             });
             match.playerStats.get(player).energy -= totalEnergyCost;

@@ -145,7 +145,7 @@ const simulateRound = async (cards, match) => {
     const player2Cards = [PLACEHOLDER_CARD, PLACEHOLDER_CARD, PLACEHOLDER_CARD]; // Default all positions to placeholder cards
 
     // Populate the arrays with the actual card IDs in their correct positions
-    console.log("allCards", allCards);
+    // console.log("allCards", allCards);
     allCards.forEach(card => {
         if (card.player === player1) {
             player1Cards[card.position] = { id: card.card.id, hp: card.card.hp, atk: card.card.atk, spd: card.card.spd };
