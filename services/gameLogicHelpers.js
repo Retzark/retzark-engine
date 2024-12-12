@@ -166,22 +166,22 @@ const simulateRound = async (cards, match) => {
 };
 
 // Helper function to apply damage to a target card
-const applyDamage = (battle, match) => {
+const applyDamage = async (battle, match) => {
     let cardHealth = 0; // Initialize card health variable
     if (!battle) return;
     const player = Object.keys(battle)[0]; // Get the player involved in the battle
-    const { attack, targetCard } = battle[player]; // Get the attack and target card details
+    const {attack, targetCard} = battle[player]; // Get the attack and target card details
     cardHealth = targetCard.card.hp;
 
     // If the target card's health is zero or less, update the base health
     if (cardHealth <= 0) {
         cardHealth = 0;
         if (!match) throw new Error('Match not found'); // Throw an error if the match is not found
-        const baseHealth = match.playerStats.get(player).baseHealth;
+        const baseHealth = await match.playerStats.get(player).baseHealth;
         const updatedBaseHealth = baseHealth - attack; // Calculate new base health
-        match.playerStats.get(player).baseHealth = updatedBaseHealth; // Update the in-memory object
+        await match.playerStats.get(player).baseHealth = updatedBaseHealth; // Update the in-memory object
         console.log("updatedBaseHealth", updatedBaseHealth);
-        match.updateOne({ [`playerStats.${player}.baseHealth`]: updatedBaseHealth }); // Update base health in the database
+        await match.updateOne({[`playerStats.${player}.baseHealth`]: updatedBaseHealth}); // Update base health in the database
     } else {
         cardHealth -= attack; // Subtract attack from card's health
     }
