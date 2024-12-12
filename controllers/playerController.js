@@ -14,15 +14,15 @@ const {waitingPlayers, activeMatches} = require("../services/matchmakingService"
 const getPlayerProfile = async (req, res) => {
     const username = req.params.username;
     const profile = await playerService.getPlayerProfile(username);
-    console.log('waitingPlayers:', waitingPlayers);
-    console.log('activeMatches:', activeMatches);
+    //console.log('waitingPlayers:', waitingPlayers);
+    //console.log('activeMatches:', activeMatches);
     if (waitingPlayers.has(username)) {
         console.log('Checking match status for:', username);
         res.json({profile, status: 'In waiting room' });
     } else if (activeMatches && activeMatches[username]){
         const matchId = activeMatches[username];
-        console.log('activeMatches:', activeMatches);
-        console.log('Match ID:', matchId);
+        //console.log('activeMatches:', activeMatches);
+        //console.log('Match ID:', matchId);
         if (matchId) {
             res.json({profile,  status: 'In a match', matchId: matchId });
         } else {
