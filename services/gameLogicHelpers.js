@@ -177,9 +177,9 @@ const applyDamage = async (battle, match) => {
     if (cardHealth <= 0) {
         cardHealth = 0;
         if (!match) throw new Error('Match not found'); // Throw an error if the match is not found
-        const baseHealth = await match.playerStats.get(player).baseHealth;
+        const baseHealth = match.playerStats.get(player).baseHealth;
         const updatedBaseHealth = baseHealth - attack; // Calculate new base health
-        await match.playerStats.get(player).baseHealth = updatedBaseHealth; // Update the in-memory object
+        match.playerStats.get(player).baseHealth = updatedBaseHealth; // Update the in-memory object
         console.log("updatedBaseHealth", updatedBaseHealth);
         await match.updateOne({[`playerStats.${player}.baseHealth`]: updatedBaseHealth}); // Update base health in the database
     } else {
