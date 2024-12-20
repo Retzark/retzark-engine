@@ -15,6 +15,24 @@ const rankMaxManaMap = {
     'transcendent': 5000
 };
 
+const rankBuyInMap = {
+    'rookie': 10,
+    'adept': 20,
+    'expert': 30,
+    'master': 40,
+    'grandmaster': 50,
+    'transcendent': 50
+};
+
+const rankMaxBetMap = {
+    'rookie': 100,
+    'adept': 200,
+    'expert': 300,
+    'master': 400,
+    'grandmaster': 500,
+    'transcendent': 500
+};
+
 const determineMaxMana = (rank) => {
     console.log('Determining max mana for rank:', rank, 'max-mana:', rankMaxManaMap[rank] || 1000);
     return rankMaxManaMap[rank] || 1000;
@@ -23,25 +41,7 @@ const determineMaxMana = (rank) => {
 const getManaBalance = async (username) => {
     const player = await Player.findOne({ username });
     if (!player) return { success: false, message: 'Player not found' };
-    return { maxManaBalance: player.maxManaBalance, currentManaBalance: player.currentManaBalance };
-};
-
-const rankBuyInMap = {
-    'rookie': 1,
-    'adept': 100,
-    'expert': 150,
-    'master': 200,
-    'grandmaster': 250,
-    'transcendent': 250
-};
-
-const rankMaxBetMap = {
-    'rookie': 10,
-    'adept': 100,
-    'expert': 150,
-    'master': 200,
-    'grandmaster': 250,
-    'transcendent': 500
+    return { maxManaBalance: player.maxManaBalance, manaBalance: player.manaBalance };
 };
 
 const getMaxBetForRank = (rank) => {
@@ -59,10 +59,10 @@ const deductMana = async (username, amount) => {
     const updatedPlayer = await Player.findOneAndUpdate(
         { 
             username,
-            currentManaBalance: { $gte: amount } // Ensure sufficient balance
+            manaBalance: { $gte: amount } // Ensure sufficient balance
         },
         {
-            $inc: { currentManaBalance: -amount },
+            $inc: { manaBalance: -amount },
             $push: {
                 manaHistory: {
                     change: -amount,
@@ -82,7 +82,7 @@ const deductMana = async (username, amount) => {
         throw new Error('Insufficient mana');
     }
 
-    console.log(`Deducted ${amount} mana from player ${username} (new balance: ${updatedPlayer.currentManaBalance})`);
+    console.log(`Deducted ${amount} mana from player ${username} (new balance: ${updatedPlayer.manaBalance})`);
     return updatedPlayer;
 };
 

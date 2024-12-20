@@ -5,7 +5,7 @@ const playerSchema = new mongoose.Schema({
     rank: { type: String, default: 'rookie 1' },
     xp: { type: Number, default: 0 },
     maxManaBalance: { type: Number, default: 1000 },
-    currentManaBalance: { type: Number, default: 1000 },
+    manaBalance: { type: Number, default: 1000 },
     retBalance: { type: Number, default: 0 },
     matches: { type: [String], default: [] },
     wins: { type: Number, default: 0 },

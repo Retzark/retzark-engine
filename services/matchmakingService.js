@@ -7,7 +7,7 @@ const Match = require('../models/Match');
 const Player = require('../models/Player');
 const Wager = require('../models/Wager');
 const { postTransaction, getTx } = require('./hiveService');
-const { determineBuyIn } = require('./manaService');
+const { getMaxBetForRank, determineBuyIn } = require('./manaService');
 let waitingPlayers = new Set();
 let activeMatches = {};
 let matchCardSelections = {};
@@ -107,6 +107,7 @@ const createMatchmakingTransaction = async (players) => {
         player2: players[1],
         player1Wager: determineBuyIn(matchRank),
         player2Wager: determineBuyIn(matchRank),
+        maxWager: getMaxBetForRank(matchRank),
         playerStats: {
             [players[0]]: { status: 'pending' },
             [players[1]]: { status: 'pending' }

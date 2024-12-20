@@ -6,7 +6,7 @@ require('dotenv').config();
 const HIVE_NODE = process.env.HIVE_NODE || 'https://api.openhive.network';
 const client = new Client(HIVE_NODE, { timeout: 8000, failoverThreshold: 10 });
 const PORT = process.env.PORT || 3000;
-const BASE_URL = 'http://localhost:' + PORT;
+const BASE_URL = 'https://retzark-engine.retzark.com';
 
 const Card = require('../models/Card'); // Assuming the card model is in the models directory
 

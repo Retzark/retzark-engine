@@ -79,12 +79,12 @@ describe('Mana Service', () => {
       const player = new Player({ 
         username: 'testplayer', 
         maxManaBalance: 2000, 
-        currentManaBalance: 1500 
+        manaBalance: 1500 
       });
       await player.save();
 
       const result = await getManaBalance('testplayer');
-      expect(result).toEqual({ maxManaBalance: 2000, currentManaBalance: 1500 });
+      expect(result).toEqual({ maxManaBalance: 2000, manaBalance: 1500 });
     });
 
     it('should return error for non-existing player', async () => {
@@ -117,9 +117,9 @@ describe('Mana Service', () => {
   describe('updateMana', () => {
     it('should correctly update mana for all players', async () => {
       const players = [
-        new Player({ username: 'rookie1', rank: 'rookie', maxManaBalance: 1000, currentManaBalance: 500 }),
-        new Player({ username: 'adept1', rank: 'adept', maxManaBalance: 2000, currentManaBalance: 1000 }),
-        new Player({ username: 'expert1', rank: 'expert', maxManaBalance: 3000, currentManaBalance: 1500 })
+        new Player({ username: 'rookie1', rank: 'rookie', maxManaBalance: 1000, manaBalance: 500 }),
+        new Player({ username: 'adept1', rank: 'adept', maxManaBalance: 2000, manaBalance: 1000 }),
+        new Player({ username: 'expert1', rank: 'expert', maxManaBalance: 3000, manaBalance: 1500 })
       ];
       await Player.insertMany(players);
 
@@ -130,11 +130,11 @@ describe('Mana Service', () => {
       const updatedExpert = await Player.findOne({ username: 'expert1' });
 
       expect(updatedRookie.maxManaBalance).toBe(1000);
-      expect(updatedRookie.currentManaBalance).toBe(1000);
+      expect(updatedRookie.manaBalance).toBe(1000);
       expect(updatedAdept.maxManaBalance).toBe(2000);
-      expect(updatedAdept.currentManaBalance).toBe(2000);
+      expect(updatedAdept.manaBalance).toBe(2000);
       expect(updatedExpert.maxManaBalance).toBe(3000);
-      expect(updatedExpert.currentManaBalance).toBe(3000);
+      expect(updatedExpert.manaBalance).toBe(3000);
     });
 
     it('should handle players with number in rank', async () => {
@@ -142,7 +142,7 @@ describe('Mana Service', () => {
         username: 'rookie2', 
         rank: 'rookie 2', 
         maxManaBalance: 1000, 
-        currentManaBalance: 800 
+        manaBalance: 800 
       });
       await player.save();
 
@@ -150,7 +150,7 @@ describe('Mana Service', () => {
 
       const updatedPlayer = await Player.findOne({ username: 'rookie2' });
       expect(updatedPlayer.maxManaBalance).toBe(1000);
-      expect(updatedPlayer.currentManaBalance).toBe(1000);
+      expect(updatedPlayer.manaBalance).toBe(1000);
     });
   });
 
@@ -160,14 +160,14 @@ describe('Mana Service', () => {
         username: 'testplayer', 
         rank: 'rookie', 
         maxManaBalance: 1000, 
-        currentManaBalance: 1000 
+        manaBalance: 1000 
       });
       await player.save();
 
       await deductMana('testplayer', 100);
 
       const updatedPlayer = await Player.findOne({ username: 'testplayer' });
-      expect(updatedPlayer.currentManaBalance).toBe(900);
+      expect(updatedPlayer.manaBalance).toBe(900);
       expect(updatedPlayer.manaHistory).toHaveLength(1);
       expect(updatedPlayer.manaHistory[0].change).toBe(-100);
     });
@@ -177,14 +177,14 @@ describe('Mana Service', () => {
         username: 'testplayer', 
         rank: 'rookie', 
         maxManaBalance: 1000, 
-        currentManaBalance: 50 
+        manaBalance: 50 
       });
       await player.save();
 
       await expect(deductMana('testplayer', 100)).rejects.toThrow('Insufficient mana');
 
       const updatedPlayer = await Player.findOne({ username: 'testplayer' });
-      expect(updatedPlayer.currentManaBalance).toBe(50);  // Balance should remain unchanged
+      expect(updatedPlayer.manaBalance).toBe(50);  // Balance should remain unchanged
       expect(updatedPlayer.manaHistory).toHaveLength(0);  // No history entry should be added
     });
   });
@@ -195,7 +195,7 @@ describe('Mana Service', () => {
         username: 'testplayer', 
         rank: 'rookie', 
         maxManaBalance: 1000, 
-        currentManaBalance: 1000 
+        manaBalance: 1000 
       });
       await player.save();
 
@@ -208,7 +208,7 @@ describe('Mana Service', () => {
       await Promise.all(deductions);
 
       const updatedPlayer = await Player.findOne({ username: 'testplayer' });
-      expect(updatedPlayer.currentManaBalance).toBe(100);
+      expect(updatedPlayer.manaBalance).toBe(100);
       expect(updatedPlayer.manaHistory).toHaveLength(3);
     });
 
@@ -217,7 +217,7 @@ describe('Mana Service', () => {
         username: 'testplayer', 
         rank: 'rookie', 
         maxManaBalance: 1000, 
-        currentManaBalance: 500 
+        manaBalance: 500 
       });
       await player.save();
 
@@ -233,7 +233,7 @@ describe('Mana Service', () => {
       expect(results[1].reason.message).toBe('Insufficient mana');
 
       const updatedPlayer = await Player.findOne({ username: 'testplayer' });
-      expect(updatedPlayer.currentManaBalance).toBe(200);
+      expect(updatedPlayer.manaBalance).toBe(200);
       expect(updatedPlayer.manaHistory).toHaveLength(1);
     });
 
@@ -242,7 +242,7 @@ describe('Mana Service', () => {
         username: 'testplayer', 
         rank: 'rookie', 
         maxManaBalance: 1000, 
-        currentManaBalance: 1000 
+        manaBalance: 1000 
       });
       await player.save();
 
@@ -253,7 +253,7 @@ describe('Mana Service', () => {
       await Promise.all(deductions);
 
       const updatedPlayer = await Player.findOne({ username: 'testplayer' });
-      expect(updatedPlayer.currentManaBalance).toBe(500);
+      expect(updatedPlayer.manaBalance).toBe(500);
       expect(updatedPlayer.manaHistory).toHaveLength(5);
       
       updatedPlayer.manaHistory.forEach(transaction => {
@@ -267,7 +267,7 @@ describe('Mana Service', () => {
         username: 'testplayer', 
         rank: 'rookie', 
         maxManaBalance: 1000, 
-        currentManaBalance: 1000 
+        manaBalance: 1000 
       });
       await player.save();
 
@@ -276,7 +276,7 @@ describe('Mana Service', () => {
       }
 
       const updatedPlayer = await Player.findOne({ username: 'testplayer' });
-      expect(updatedPlayer.currentManaBalance).toBe(500);
+      expect(updatedPlayer.manaBalance).toBe(500);
       expect(updatedPlayer.manaHistory).toHaveLength(5);
 
       // Convert manaHistory to array of expected balances
