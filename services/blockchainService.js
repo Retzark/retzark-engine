@@ -45,10 +45,6 @@ const processBlock = (block) => {
             if (type === 'custom_json' && data.json) {
                 try {
                     switch (data.id) {
-                        case 'RZ_JOIN_WAITING_ROOM':
-                            console.log(data)
-                            handleJoinRequest(data);
-                            break;
                         case 'RZ_CARD_SELECTION':
                             console.log(data)
                             handleCardSelection(data);
