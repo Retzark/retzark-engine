@@ -19,10 +19,10 @@ const joinWaitingRoom = async (txID, player) => {
     console.log("txID", txID);
     let i = 0;
     try {
-        const playerData = await Player.findOne({username: player});
+        let playerData = await Player.findOne({username: player});
         if (!playerData) {
-            const newPlayer = new Player({username: player});
-            await newPlayer.save();
+            playerData = new Player({username: player});
+            await playerData.save();
         }
         while (true){
             const transaction = await getTx(txID);
@@ -50,26 +50,34 @@ const joinWaitingRoom = async (txID, player) => {
 
 const handleJoinRequest = async (data) => {
     let player = data[0][1].required_posting_auths[0];
-    console.log('Join request received4:', player);
+    console.log('Join request received:', player);
+
+    // Parse the custom JSON data to get match type
+    const jsonData = JSON.parse(data[0][1].json);
+    const matchType = jsonData.matchType || 'ranked'; // Default to ranked if not specified
+
     let playerData = await Player.findOne({ username: player });
     console.log(`Player data: ${playerData}`);
     if (!playerData) {
-        // Add new player to the database
         console.log(`Player ${player} not found. Adding to database...`);
         playerData = new Player({ username: player });
         await playerData.save();
     }
-    console.log("Players name:", data[0][1].required_posting_auths[0]);
+
     if (playerData.status === 'In waiting room' || playerData.status === 'In a match') {
         console.log(`Player ${player} is already in the waiting room or in a match.`);
         return;
     } else {
-        waitingPlayers.add(data[0][1].required_posting_auths[0]);
+        // Store player with their preferred match type
+        waitingPlayers.add(JSON.stringify({
+            username: player,
+            matchType: matchType
+        }));
     }
     console.log('Waiting players:', Array.from(waitingPlayers));
 };
 
-const createMatchmakingTransaction = async (players) => {
+const createMatchmakingTransaction = async (players, matchType) => {
     const matchId = require('crypto').randomBytes(16).toString('hex');
     console.log('Creating matchmaking transaction for players:', players);
     // Determine the rank for the match based on the players' ranks
@@ -79,8 +87,10 @@ const createMatchmakingTransaction = async (players) => {
     // Remove the space in the rank
     matchRank = matchRank.replace(/\s/g, '');
     console.log(`Match rank: ${matchRank}`);
+    const buyIn = await determineBuyIn(matchRank);
+    const maxBet = getMaxBetForRank(matchRank);
+
     const newMatch = await Match.create({
-        // Remove the number from the matchRank rookie 1 -> rookie
         matchId: matchId,
         players: players,
         // deckHashes: {
@@ -96,28 +106,32 @@ const createMatchmakingTransaction = async (players) => {
             [players[1]]: { energy: 8, baseHealth: 15 }
         },
         rank: matchRank,
-        totalManaPool: determineBuyIn(matchRank) * 2,
+        type: matchType, // Set the match type
+        totalManaPool: buyIn * 2,
         createdAt: new Date(),
         updatedAt: new Date()
     });
+
     // Create a wager for the match
     const wager = await Wager.create({
         matchId: matchId,
         player1: players[0],
         player2: players[1],
-        player1Wager: determineBuyIn(matchRank),
-        player2Wager: determineBuyIn(matchRank),
-        maxWager: getMaxBetForRank(matchRank),
+        player1Wager: buyIn,
+        player2Wager: buyIn,
+        maxWager: maxBet,
+        wagerType: matchType === 'wagered' ? 'ret' : 'mana',
         playerStats: {
             [players[0]]: { status: 'pending' },
             [players[1]]: { status: 'pending' }
         },
-        totalPool: determineBuyIn(matchRank) * 2,
+        totalPool: buyIn * 2,
         status: 'pending',
         round: 1,
         createdAt: new Date(),
         updatedAt: new Date()
     });
+
     console.log('New match created:', newMatch);
     console.log('Creating match for:', players);
     initializeMatchDetails(matchId, players);
@@ -125,7 +139,8 @@ const createMatchmakingTransaction = async (players) => {
         id: "MATCHMAKING_COMPLETE",
         player1Id: players[0],
         player2Id: players[1],
-        matchId: matchId
+        matchId: matchId,
+        matchType: matchType
     };
     await postTransaction(jsonData);
     activeMatches[players[0]] = matchId;
@@ -147,15 +162,22 @@ const initializeMatchDetails = (matchId, players) => {
 const matchPlayersByRank = async () => {
     if (waitingPlayers.size < 2) return;
 
-    const playersArray = await Promise.all(Array.from(waitingPlayers).map(async (player) => {
-        const playerData = await Player.findOne({ username: player });
+    const playersArray = await Promise.all(Array.from(waitingPlayers).map(async (playerJson) => {
+        const playerInfo = JSON.parse(playerJson);
+        const playerData = await Player.findOne({ username: playerInfo.username });
         if (!playerData) {
-            console.error(`Player data not found for username: ${player}`);
+            console.error(`Player data not found for username: ${playerInfo.username}`);
             return null;
         }
         console.log('Players array:', playerData);
-        return { username: player, xp: playerData.xp, rank: playerData.rank };
+        return {
+            username: playerInfo.username,
+            xp: playerData.xp,
+            rank: playerData.rank,
+            matchType: playerInfo.matchType
+        };
     }).filter(player => player !== null));
+
     playersArray.sort((a, b) => a.xp - b.xp);
 
     for (let i = 0; i < playersArray.length - 1; i++) {
@@ -163,27 +185,77 @@ const matchPlayersByRank = async () => {
         const player2 = playersArray[i + 1];
         console.log(`Matching players ${player1.username} and ${player2.username}`);
         console.log(`Player 1 rank: ${player1.rank}, Player 2 rank: ${player2.rank}`);
-        if (Math.abs(player1.xp - player2.xp) <= 1000 && player1.rank === player2.rank) {
+
+        // Only try to match players if they have same rank, similar XP, and same match type
+        if (Math.abs(player1.xp - player2.xp) <= 1000 &&
+            player1.rank === player2.rank &&
+            player1.matchType === player2.matchType) {
+
             const buyIn = await determineBuyIn(player1.rank);
-            console.log("Player1 mana balance:", player1.manaBalance);
-            console.log("Player2 mana balance:", player2.manaBalance);
-            if (player1.manaBalance < buyIn) {
-                waitingPlayers.delete(player1.username);
-                console.log(`Player ${player1.username} does not have enough MANA to play.`);
-                continue; // continue to the next player
-            } else if (player2.manaBalance < buyIn) {
-                waitingPlayers.delete(player2.username);
-                playersArray.splice(i + 1, 1); // Remove player 2 from the array
-                console.log(`Player ${player2.username} does not have enough MANA to play.`);
-                // Decrement i to match the next player with player 1
-                i--;
+
+            // Check if players have enough balance based on match type
+            const player1Data = await Player.findOne({ username: player1.username });
+            const player2Data = await Player.findOne({ username: player2.username });
+
+            if (!player1Data || !player2Data) {
+                console.log('Player data not found');
                 continue;
-            } else {
-                waitingPlayers.delete(player1.username);
-                waitingPlayers.delete(player2.username);
-                await createMatchmakingTransaction([player1.username, player2.username]);
-                i++; // Skip the next player as they have been matched
             }
+
+            // Check balances based on match type
+            if (player1.matchType === 'wagered') {
+                // Check RET balance for wagered matches
+                if (player1Data.retBalance < buyIn) {
+                    waitingPlayers.delete(JSON.stringify({
+                        username: player1.username,
+                        matchType: player1.matchType
+                    }));
+                    console.log(`Player ${player1.username} does not have enough RET to play.`);
+                    continue;
+                }
+                if (player2Data.retBalance < buyIn) {
+                    waitingPlayers.delete(JSON.stringify({
+                        username: player2.username,
+                        matchType: player2.matchType
+                    }));
+                    playersArray.splice(i + 1, 1);
+                    console.log(`Player ${player2.username} does not have enough RET to play.`);
+                    i--;
+                    continue;
+                }
+            } else {
+                // Check MANA balance for ranked matches
+                if (player1Data.manaBalance < buyIn) {
+                    waitingPlayers.delete(JSON.stringify({
+                        username: player1.username,
+                        matchType: player1.matchType
+                    }));
+                    console.log(`Player ${player1.username} does not have enough MANA to play.`);
+                    continue;
+                }
+                if (player2Data.manaBalance < buyIn) {
+                    waitingPlayers.delete(JSON.stringify({
+                        username: player2.username,
+                        matchType: player2.matchType
+                    }));
+                    playersArray.splice(i + 1, 1);
+                    console.log(`Player ${player2.username} does not have enough MANA to play.`);
+                    i--;
+                    continue;
+                }
+            }
+
+            // If we get here, both players have sufficient balance
+            waitingPlayers.delete(JSON.stringify({
+                username: player1.username,
+                matchType: player1.matchType
+            }));
+            waitingPlayers.delete(JSON.stringify({
+                username: player2.username,
+                matchType: player2.matchType
+            }));
+            await createMatchmakingTransaction([player1.username, player2.username], player1.matchType);
+            i++; // Skip the next player as they have been matched
         }
     }
 };

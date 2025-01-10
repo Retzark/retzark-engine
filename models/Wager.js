@@ -7,6 +7,7 @@ const wagerSchema = new mongoose.Schema({
     player1Wager: { type: Number, required: true },
     player2Wager: { type: Number, required: true },
     maxWager: { type: Number, required: true },
+    wagerType: { type: String, enum: ['mana', 'ret'], required: true },
     playerStats: {
         type: Map,
         of: new mongoose.Schema({

@@ -5,24 +5,37 @@ const Player = require("../models/Player");
 const Match = require("../models/Match");
 
 const handleJoinRequest = async (data) => {
-    const deckHash = JSON.parse(data.json).deckHash;
+    const jsonData = JSON.parse(data.json);
+    const deckHash = jsonData.deckHash;
+    const matchType = jsonData.matchType || 'ranked'; // Default to ranked if not specified
+    
     console.log('Join request received:', data);
     let player = data.required_posting_auths[0];
     let playerData = await Player.findOne({ username: player });
     console.log(`Player data: ${playerData}`);
+    
     if (!playerData) {
         console.log(`Player ${player} not found. Adding to database...`);
         playerData = new Player({ username: player });
         await playerData.save();
     }
+    
     console.log("Player's name:", player);
     if (playerData.status === 'In waiting room' || playerData.status === 'In a match') {
         console.log(`Player ${player} is already in the waiting room or in a match.`);
         return;
     } else {
-        waitingPlayers.add(player);
+        // Store player with their match type preference
+        waitingPlayers.add(JSON.stringify({
+            username: player,
+            matchType: matchType
+        }));
     }
-    console.log('Waiting players:', Array.from(waitingPlayers).map(p => p.username));
+    
+    console.log('Waiting players:', Array.from(waitingPlayers).map(p => {
+        const playerInfo = JSON.parse(p);
+        return `${playerInfo.username} (${playerInfo.matchType})`;
+    }));
 };
 
 const handleCardSelection = (data) => {

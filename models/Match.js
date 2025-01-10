@@ -4,7 +4,7 @@ const matchSchema = new mongoose.Schema({
     matchId: { type: String, required: true, unique: true },
     players: { type: [String], required: true },
     deckHashes: { type: Map, of: String },
-    decks: { 
+    decks: {
         type: Object,
         default: {}
     },
@@ -26,19 +26,26 @@ const matchSchema = new mongoose.Schema({
     status: { type: String, default: 'active' },
     winner: { type: String },
     manaWagered: { type: Number, default: 0 },
+    retWagered: { type: Number, default: 0 },
     totalManaPool: { type: Number, default: 0 },
     playerManaWagered: {
         type: Map,
         of: Number,
         default: {}
     },
-    rank: { 
-        type: String, 
+    playerRetWagered: {
+        type: Map,
+        of: Number,
+        default: {}
+    },
+    rank: {
+        type: String,
         default: 'rookie1',
         set: function(v) {
             return v.toLowerCase().replace(/\s+/g, '');
         }
     },
+    type: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });

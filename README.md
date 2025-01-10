@@ -126,9 +126,30 @@ retzark-engine/
    - `processBlock(block)`: Processes each block and its transactions.
 
 2. **Matchmaking**
-   - `joinWaitingRoom(player)`: Adds a player to the waiting room.
-   - `createMatchmakingTransaction(players)`: Creates a matchmaking transaction for a pair of players.
-   - `matchPlayersByRank()`: Matches players with similar rankings and mana bets.
+   - `joinWaitingRoom(player)`: Adds a player to the waiting room with specified match type (ranked or wagered).
+   - `createMatchmakingTransaction(players, matchType)`: Creates a matchmaking transaction for a pair of players with the specified match type.
+   - `matchPlayersByRank()`: Matches players with similar rankings and same match type preference.
+
+   Match Types and Wagering:
+   - **Ranked**: Standard matches that affect player rankings and experience points. Players must wager MANA tokens to participate.
+   - **Wagered**: High-stakes matches where players wager RET tokens instead of MANA.
+
+   Every match requires a wager, with the token type determined by the match type:
+   - **MANA Wagers**: Used in ranked matches, players compete for MANA and ranking points
+   - **RET Wagers**: Used in wagered matches, players compete for higher RET token stakes
+
+   Blockchain Transaction Format for Joining Waiting Room:
+   ```json
+   {
+     "id": "RZ_JOIN_WAITING_ROOM",
+     "matchType": "ranked|wagered",  // Type of match the player wants to join
+     "required_posting_auths": ["player_username"]
+   }
+   ```
+
+   Balance Requirements:
+   - For ranked matches: Sufficient MANA balance required
+   - For wagered matches: Sufficient RET balance required
 
 3. **Game Logic**
    - `simulateRound(cards, match)`: Simulates a round of the match.
@@ -221,4 +242,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ---
 **Note:** The Retzark Engine is a work in progress. Contributions and suggestions are welcome to enhance the system and provide a better gaming experience for all players.
-
